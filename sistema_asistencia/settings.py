@@ -72,17 +72,14 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudErrorImageStorage'
 
-
-# Archivos Estáticos (CSS, JS, Imágenes del sistema)
-STATIC_URL = '/static/'
-
 # Carpeta donde buscas tus estáticos en desarrollo
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Carpeta destino donde Django recolectará todos los estáticos en producción
+# Archivos Estáticos (CSS, JS, Imágenes del sistema)
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Configuración del almacenamiento con WhiteNoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Usar la clase de almacenamiento sin manifest estricto
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'

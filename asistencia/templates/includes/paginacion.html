@@ -1,0 +1,56 @@
+<!-- templates/includes/paginacion.html -->
+{% if page_obj.has_other_pages %}
+<div class="paginacion-container">
+    <span class="step-links">
+        
+        <!-- PRIMERA PÁGINA -->
+        {% if page_obj.has_previous %}
+            <a href="?page=1&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-get="?page=1&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-target="{{ hx_target|default:'#contenedor-tabla-mantenimiento' }}"
+               hx-swap="innerHTML"
+               class="page-link page-btn">
+               &laquo; Primera
+            </a>
+               
+            <!-- PÁGINA ANTERIOR -->
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-get="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-target="{{ hx_target|default:'#contenedor-tabla-mantenimiento' }}"
+               hx-swap="innerHTML"
+               class="page-link page-btn">
+               Anterior
+            </a>
+        {% else %}
+            <span class="page-link page-disabled">Anterior</span>
+        {% endif %}
+
+        <!-- CONTADOR CENTRAL DINÁMICO REAL -->
+        <span class="page-current">
+            Página <b>{{ page_obj.number }}</b> de <b>{{ page_obj.paginator.num_pages }}</b>
+        </span>
+
+        <!-- PÁGINA SIGUIENTE -->
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-get="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-target="{{ hx_target|default:'#contenedor-tabla-mantenimiento' }}"
+               hx-swap="innerHTML"
+               class="page-link page-btn">
+               Siguiente
+            </a>
+               
+            <!-- ÚLTIMA PÁGINA -->
+            <a href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-get="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default:'' }}&filtro={{ request.GET.filtro|default:'' }}"
+               hx-target="{{ hx_target|default:'#contenedor-tabla-mantenimiento' }}"
+               hx-swap="innerHTML"
+               class="page-link page-btn">
+               Última &raquo;
+            </a>
+        {% else %}
+            <span class="page-link page-disabled">Siguiente</span>
+        {% endif %}
+    </span>
+</div>
+{% endif %}

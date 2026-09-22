@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio - Sistema de Control de Asistencia{% endblock %}
+
+{% block content %}
+<div class="welcome-container" style="text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <h2 style="color: var(--azul-oscuro); margin-bottom: 15px;">BIENVENIDO AL SISTEMA DE CONTROL DE ASISTENCIA</h2>
+    <p style="font-size: 1.1rem; color: #555; max-width: 800px; margin: 0 auto 30px auto;">
+        Plataforma institucional para el monitoreo y gestión remota de asistencia del personal docente y administrativo.
+    </p>
+
+    {% if ugel %}
+    <div class="info-card" style="display: inline-block; text-align: left; background: var(--azul-suave); border: 1px solid var(--azul-borde); padding: 25px; border-radius: 6px; max-width: 600px; width: 100%;">
+        <h3 style="color: var(--azul-oscuro); border-bottom: 2px solid var(--azul-claro); padding-bottom: 8px; margin-bottom: 15px;">
+            {{ ugel.nombre }}
+        </h3>
+        <p style="margin-bottom: 8px;"><strong>Quiénes Somos:</strong> {{ ugel.quienes_somos|default:"Información en proceso de actualización." }}</p>
+        <p style="margin-bottom: 8px;"><strong>Misión:</strong> {{ ugel.mision|default:"No registrada." }}</p>
+        <p style="margin-bottom: 8px;"><strong>Visión:</strong> {{ ugel.vision|default:"No registrada." }}</p>
+    </div>
+    {% else %}
+    <div class="alert alert-warning" style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; display: inline-block;">
+        ⚠️ No se han registrado los datos de la UGEL. Ve a la opción <strong>Tablas ➔ Tabla UGEL</strong> en el menú para registrar la información.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

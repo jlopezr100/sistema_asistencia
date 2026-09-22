@@ -1,0 +1,50 @@
+<nav class="navbar-main {% if mantenimiento_activo %}menu-disabled{% endif %}">
+    <ul class="nav-list">
+        <li class="nav-item">
+            <a href="{% url 'inicio' %}" class="nav-link">Inicio</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Asistencias</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Justificar ▾</a>
+            <ul class="dropdown-menu">
+                <li class="dropdown-item"><a href="#">Justificar Faltas</a></li>
+                <li class="dropdown-item"><a href="#">Justificar Tardanzas</a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Reportes ▾</a>
+            <ul class="dropdown-menu">
+                <li class="dropdown-item"><a href="#">Reporte de Tardanzas</a></li>
+                <li class="dropdown-item"><a href="#">Reporte de Faltas</a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Tablas ▾</a>
+            <ul class="dropdown-menu">
+                <li class="dropdown-item"><a href="{% url 'ugel_mantenimiento' %}">Tabla UGEL</a></li>
+                <li class="dropdown-item"><a href="#">Tabla Instituciones</a></li>
+                <li class="dropdown-item"><a href="#">Tabla Personal</a></li>
+                <li class="dropdown-item"><a href="{% url 'cargo_listar' %}">Tabla Cargo</a></li>
+                <li class="dropdown-item"><a href="{% url 'nivel_listar' %}">Tabla Nivel</a></li>
+                <li class="dropdown-item"><a href="{% url 'turno_listar' %}">Tabla Turno</a></li>
+                <li class="dropdown-item"><a href="{% url 'distrito_listar' %}">Tabla Distrito</a></li>
+                <li class="dropdown-item"><a href="#">Tabla Maquinas</a></li>
+                <li class="dropdown-item"><a href="{% url 'falta_listar' %}">Tabla Faltas</a></li>
+                <li class="dropdown-item"><a href="{% url 'tardanza_listar' %}">Tabla Tardanzas</a></li>
+                <li class="dropdown-item"><a href="#">Tabla Corte</a></li>
+                <li class="dropdown-item"><a href="#">Tabla Usuarios</a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Nosotros</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Autenticación</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">Salir</a>
+        </li>
+    </ul>
+</nav>

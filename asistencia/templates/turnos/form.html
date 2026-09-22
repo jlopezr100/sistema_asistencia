@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="mantenimiento-container" style="max-width: 600px; margin: 30px auto;">
+    <div class="section-header">
+        <h2>{{ titulo_formulario }}</h2>
+    </div>
+
+    <form method="POST" class="form-crud">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.nombre.id_for_label }}" style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                Nombre del Turno *
+            </label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}
+                <span style="color: #c0392b; font-size: 0.85rem;">{{ form.nombre.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label for="{{ form.hora_entrada.id_for_label }}" style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                    Hora Entrada
+                </label>
+                {{ form.hora_entrada }}
+            </div>
+
+            <div style="flex: 1;">
+                <label for="{{ form.hora_salida.id_for_label }}" style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                    Hora Salida
+                </label>
+                {{ form.hora_salida }}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+            {{ form.estado }}
+            <label for="{{ form.estado.id_for_label }}" style="font-weight: bold; color: var(--azul-oscuro); margin: 0; cursor: pointer;">
+                Estado Activo
+            </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--azul-borde); padding-top: 15px;">
+            <a href="{% url 'turno_listar' %}" class="btn-crud" style="background-color: #6c757d; color: white; text-decoration: none;">Cancelar</a>
+            <button type="submit" class="btn-crud btn-add">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

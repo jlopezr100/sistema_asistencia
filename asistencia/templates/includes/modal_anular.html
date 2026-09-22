@@ -1,0 +1,16 @@
+<!-- templates/includes/modal_anular.html -->
+<dialog id="modal-confirmacion" class="modal-dialog-custom">
+    <div class="modal-content-custom">
+        <h3 class="modal-title">¿Confirmar anulación del registro?</h3>
+        <p class="modal-text">¿Estás seguro de inhabilitar y registrar la baja de: <strong id="modal-registro-titulo"></strong>?</p>
+        
+        <form id="form-eliminar" method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="modal-acciones">
+                <button type="button" class="btn-modal btn-modal-cancelar" onclick="cerrarModalGlobal()">Cancelar</button>
+                <button type="submit" class="btn-modal btn-modal-confirmar">Sí, anular registro</button>
+            </div>
+        </form>
+    </div>
+</dialog>

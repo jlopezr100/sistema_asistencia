@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Control de Asistencia{% endblock %}</title>
+    <!-- Estilos Base -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- 1. ENCABEZADO -->
+    <header class="header-main">
+        <div class="header-container">
+            <div class="logo-title-container">
+                {% if ugel and ugel.logo %}
+                    <img src="{{ ugel.logo.url }}" alt="Logo Institucional" class="img-logo">
+                {% else %}
+                    <img src="{% static 'img/logo_default.png' %}" alt="Logo Predeterminado" class="img-logo">
+                {% endif %}
+                <h1 class="inst-title">{{ ugel.nombre|default:"INSTITUCIÓN EDUCATIVA" }}</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. NAVEGACIÓN Y SLOGAN -->
+    {% include 'includes/navbar.html' %}
+
+    <div class="slogan-banner">
+        <marquee behavior="scroll" direction="left" scrollamount="5">
+            {{ ugel.eslogan|default:"Sistema de Control de Asistencia Remota - UGEL" }}
+        </marquee>
+    </div>
+
+    <!-- 3. CUERPO DE LA PÁGINA -->
+    <main class="main-content">
+        <!-- Mensajes del Sistema (Django Messages) -->
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        <!-- Aquí se cargará el contenido de cada vista -->
+        {% endblock %}
+    </main>
+
+    <!-- 4. PIE DE PÁGINA -->
+    <footer class="footer-main">
+        <div class="footer-content">
+            <p>
+                <strong>RUC:</strong> {{ ugel.ruc|default:"---------" }} | 
+                <strong>Dirección:</strong> {{ ugel.direccion|default:"No registrada" }}
+            </p>
+            <p>
+                <strong>Correo:</strong> {{ ugel.correo|default:"contacto@ugel.gob.pe" }} | 
+                <strong>Teléfono:</strong> {{ ugel.telefono|default:"---" }}
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends 'mantenimiento/tabla_base.html' %}
+
+{% block columnas_header %}
+    <th style="width: 25%;">Nombre del Cargo</th>
+    <th>Descripción</th>
+{% endblock %}
+
+{% block filas_tabla %}
+    {% for cargo in page_obj %}
+    <tr>
+        <td><strong>{{ cargo.id }}</strong></td>
+        <td>{{ cargo.nombre }}</td>
+        <td>{{ cargo.descripcion|default:"-" }}</td>
+        <td style="text-align: center;">
+            {% if cargo.estado %}
+                <span class="badge-activo">Activo</span>
+            {% else %}
+                <span class="badge-inactivo">Inactivo</span>
+            {% endif %}
+        </td>
+        <td style="text-align: center;">
+            <div class="acciones-cell">
+                <!-- BOTÓN EDITAR ENLAZADO -->
+                <a href="{% url 'cargo_editar' cargo.id %}" class="btn-action-edit">Editar</a>
+                
+                <!-- BOTÓN ANULAR CON ATRIBUTOS DATA -->
+                <button type="button" 
+                        class="btn-action-delete" 
+                        data-url="{% url 'cargo_anular' cargo.id %}"
+                        data-nombre="{{ cargo.nombre }}"
+                        onclick="abrirModalAnularConData(this)">
+                    Anular
+                </button>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" style="text-align: center; padding: 25px; color: #777;">
+            No se encontraron cargos registrados.
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

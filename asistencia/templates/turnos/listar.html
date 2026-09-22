@@ -1,0 +1,44 @@
+{% extends 'mantenimiento/tabla_base.html' %}
+
+{% block columnas_header %}
+    <th style="width: 25%;">Nombre del Turno</th>
+    <th style="text-align: center;">Hora Entrada</th>
+    <th style="text-align: center;">Hora Salida</th>
+{% endblock %}
+
+{% block filas_tabla %}
+    {% for turno in page_obj %}
+    <tr>
+        <td><strong>{{ turno.id }}</strong></td>
+        <td>{{ turno.nombre }}</td>
+        <td style="text-align: center;">{{ turno.hora_entrada|time:"H:i"|default:"-" }}</td>
+        <td style="text-align: center;">{{ turno.hora_salida|time:"H:i"|default:"-" }}</td>
+        <td style="text-align: center;">
+            {% if turno.estado %}
+                <span class="badge-activo">Activo</span>
+            {% else %}
+                <span class="badge-inactivo">Inactivo</span>
+            {% endif %}
+        </td>
+        <td style="text-align: center;">
+            <div class="acciones-cell">
+                <a href="{% url 'turno_editar' turno.id %}" class="btn-action-edit">Editar</a>
+                
+                <button type="button" 
+                        class="btn-action-delete" 
+                        data-url="{% url 'turno_anular' turno.id %}"
+                        data-nombre="{{ turno.nombre }}"
+                        onclick="abrirModalAnularConData(this)">
+                    Anular
+                </button>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" style="text-align: center; padding: 25px; color: #777;">
+            No se encontraron turnos registrados.
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

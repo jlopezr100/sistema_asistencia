@@ -1,0 +1,17 @@
+/* Color para la barra de navegación */
+.navbar {
+    background-color: #0b3c5d !important; /* Azul institucional */
+}
+
+.navbar .nav-link {
+    color: #ffffff !important; /* Texto blanco legible */
+}
+
+.navbar .nav-link:hover {
+    color: #328cc1 !important; /* Azul claro al pasar el cursor */
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #2B4C7E !important;
+    color: #ffffff !important;
+}

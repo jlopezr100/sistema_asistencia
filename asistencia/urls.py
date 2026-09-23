@@ -1,7 +1,10 @@
+from django.contrib import admin
 from django.urls import path
 from . import views
 
 urlpatterns = [
+     path('admin/', admin.site.urls),
+     
     path('', views.inicio_index, name='inicio'),
 
     path('ugel/', views.ugel_mantenimiento, name='ugel_mantenimiento'),
@@ -52,4 +55,5 @@ urlpatterns = [
     path('tardanzas/excel/', views.tardanza_exportar_excel, name='tardanza_excel'),
     
     path('nosotros/', views.nosotros, name='nosotros'),
+
 ]

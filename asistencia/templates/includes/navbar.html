@@ -1,96 +1,75 @@
-{% load static %}
-
-<!-- ENCABEZADO / LOGO E INSTITUCIÓN -->
-<header class="py-3 style-header" style="background-color: #1d2731; color: white;">
-  <div class="container d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center gap-3">
-      <img src="{% static 'img/logo.png' %}" alt="Logo Institucional" class="header-logo" onerror="this.style.display='none'">
-      <h1 class="h3 m-0 text-white font-weight-bold">{{ ugel.nombre|default:"UGEL YUNGAY" }}</h1>
-    </div>
-    <span class="text-muted small d-none d-md-inline">Sistema de Control de Asistencia Remota - UGEL</span>
-  </div>
-</header>
-
-<!-- BARRA DE NAVEGACIÓN -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color: #0d233a !important;">
-  <div class="container-fluid">
-    
-    <!-- Botón para pantallas pequeñas (móviles) -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+<!-- BARRA DE NAVEGACIÓN AZUL -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1A365D;">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
-
-    <!-- Menú Colapsable -->
-    <div class="collapse navbar-collapse" id="mainNavbar">
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        
         <li class="nav-item">
-          <a class="nav-link active" href="{% url 'inicio' %}"><i class="bi bi-house-door me-1"></i>Inicio</a>
+          <a class="nav-link text-white fw-semibold px-3" href="{% url 'inicio' %}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white fw-semibold px-3" href="#">Asistencias</a>
         </li>
         
-        <li class="nav-item">
-          <a class="nav-link" href="#"><i class="bi bi-calendar-check me-1"></i>Asistencias</a>
-        </li>
-
-        <!-- Desplegable Justificar -->
+        <!-- Menú Justificar -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle text-white fw-semibold px-3" href="#" role="button" data-bs-toggle="dropdown">
             Justificar
           </a>
-          <ul class="dropdown-menu shadow">
-            <li><a class="dropdown-item" href="#">Justificar Faltas</a></li>
-            <li><a class="dropdown-item" href="#">Justificar Tardanzas</a></li>
+          <ul class="dropdown-menu" style="background-color: #1B355A;">
+            <li><a class="dropdown-item text-white" href="#">Justificar Falta</a></li>
           </ul>
         </li>
 
-        <!-- Desplegable Reportes -->
+        <!-- Menú Reportes -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle text-white fw-semibold px-3" href="#" role="button" data-bs-toggle="dropdown">
             Reportes
           </a>
-          <ul class="dropdown-menu shadow">
-            <li><a class="dropdown-item" href="#">Reporte de Tardanzas</a></li>
-            <li><a class="dropdown-item" href="#">Reporte de Faltas</a></li>
+          <ul class="dropdown-menu" style="background-color: #1B355A;">
+            <li><a class="dropdown-item text-white" href="#">Reporte de Asistencia</a></li>
           </ul>
         </li>
 
-        <!-- Desplegable Tablas -->
+        <!-- Menú Tablas -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle text-white fw-semibold px-3 active" href="#" role="button" data-bs-toggle="dropdown" style="background-color: #2B4C7E;">
             Tablas
           </a>
-          <ul class="dropdown-menu shadow scrollable-dropdown">
-            <li><a class="dropdown-item" href="#">Tabla UGEL</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Instituciones</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Personal</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Cargo</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Nivel</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Turno</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Distrito</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Máquinas</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Tabla Faltas</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Tardanzas</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Corte</a></li>
-            <li><a class="dropdown-item" href="#">Tabla Usuarios</a></li>
+          <ul class="dropdown-menu shadow-lg" style="background-color: #1B355A; border: none;">
+            <li><a class="dropdown-item text-white py-2" href="{% url 'ugel_mantenimiento' %}">Tabla UGEL</a></li>
+            <li><a class="dropdown-item text-white py-2" href="#">Tabla Instituciones</a></li>
+            <li><a class="dropdown-item text-white py-2" href="#">Tabla Personal</a></li>
+            <li><a class="dropdown-item text-white py-2" href="{% url 'cargo_listar' %}">Tabla Cargo</a></li>
+            <li><a class="dropdown-item text-white py-2" href="{% url 'nivel_listar' %}">Tabla Nivel</a></li>
+            <li><a class="dropdown-item text-white py-2" href="{% url 'turno_listar' %}">Tabla Turno</a></li>
+            <li><a class="dropdown-item text-white py-2" href="{% url 'distrito_listar' %}">Tabla Distrito</a></li>
+            <li><a class="dropdown-item text-white py-2" href="#">Tabla Maquinas</a></li>
+            <li><a class="dropdown-item text-white py-2" href="{% url 'falta_listar' %}">Tabla Faltas</a></li>
+            <li><a class="dropdown-item text-white py-2" href="{% url 'tardanza_listar' %}">Tabla Tardanzas</a></li>
+            <li><a class="dropdown-item text-white py-2" href="#">Tabla Corte</a></li>
+            <li><a class="dropdown-item text-white py-2" href="#">Tabla Usuarios</a></li>
           </ul>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#">Nosotros</a>
+          <a class="nav-link text-white fw-semibold px-3" href="#">Nosotros</a>
         </li>
       </ul>
 
-      <!-- Opciones Derecha (Sesión / Autenticación) -->
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+      <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="#">Autenticación</a>
+          <a class="nav-link text-white fw-semibold px-3" href="/admin/">Autenticación</a>
         </li>
+        {% if user.is_authenticated %}
         <li class="nav-item">
-          <a class="btn btn-outline-light btn-sm px-3" href="#">Salir</a>
+          <a class="nav-link text-white fw-semibold px-3" href="/admin/logout/">Salir</a>
         </li>
+        {% endif %}
       </ul>
-
     </div>
   </div>
 </nav>

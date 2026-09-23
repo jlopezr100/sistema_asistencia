@@ -1,50 +1,96 @@
-<nav class="navbar-main {% if mantenimiento_activo %}menu-disabled{% endif %}">
-    <ul class="nav-list">
+{% load static %}
+
+<!-- ENCABEZADO / LOGO E INSTITUCIÓN -->
+<header class="header-main bg-white border-bottom py-2">
+  <div class="container-fluid d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <img src="{% static 'img/logo.png' %}" alt="Logo Institucional" class="header-logo" onerror="this.style.display='none'">
+      <h1 class="h4 mb-0 fw-bold text-uppercase brand-title">INSTITUCIÓN EDUCATIVA</h1>
+    </div>
+    <span class="text-muted small d-none d-md-inline">Sistema de Control de Asistencia Remota - UGEL</span>
+  </div>
+</header>
+
+<!-- BARRA DE NAVEGACIÓN -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-custom-primary shadow-sm sticky-top">
+  <div class="container-fluid">
+    
+    <!-- Botón para pantallas pequeñas (móviles) -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menú Colapsable -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        
         <li class="nav-item">
-            <a href="{% url 'inicio' %}" class="nav-link">Inicio</a>
+          <a class="nav-link active" href="{% url 'inicio' %}"><i class="bi bi-house-door me-1"></i>Inicio</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="#"><i class="bi bi-calendar-check me-1"></i>Asistencias</a>
+        </li>
+
+        <!-- Desplegable Justificar -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Justificar
+          </a>
+          <ul class="dropdown-menu shadow">
+            <li><a class="dropdown-item" href="#">Justificar Faltas</a></li>
+            <li><a class="dropdown-item" href="#">Justificar Tardanzas</a></li>
+          </ul>
+        </li>
+
+        <!-- Desplegable Reportes -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Reportes
+          </a>
+          <ul class="dropdown-menu shadow">
+            <li><a class="dropdown-item" href="#">Reporte de Tardanzas</a></li>
+            <li><a class="dropdown-item" href="#">Reporte de Faltas</a></li>
+          </ul>
+        </li>
+
+        <!-- Desplegable Tablas -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Tablas
+          </a>
+          <ul class="dropdown-menu shadow scrollable-dropdown">
+            <li><a class="dropdown-item" href="#">Tabla UGEL</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Instituciones</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Personal</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Cargo</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Nivel</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Turno</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Distrito</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Máquinas</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Tabla Faltas</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Tardanzas</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Corte</a></li>
+            <li><a class="dropdown-item" href="#">Tabla Usuarios</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">Nosotros</a>
+        </li>
+      </ul>
+
+      <!-- Opciones Derecha (Sesión / Autenticación) -->
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Autenticación</a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link">Asistencias</a>
+          <a class="btn btn-outline-light btn-sm px-3" href="#">Salir</a>
         </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Justificar ▾</a>
-            <ul class="dropdown-menu">
-                <li class="dropdown-item"><a href="#">Justificar Faltas</a></li>
-                <li class="dropdown-item"><a href="#">Justificar Tardanzas</a></li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Reportes ▾</a>
-            <ul class="dropdown-menu">
-                <li class="dropdown-item"><a href="#">Reporte de Tardanzas</a></li>
-                <li class="dropdown-item"><a href="#">Reporte de Faltas</a></li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Tablas ▾</a>
-            <ul class="dropdown-menu">
-                <li class="dropdown-item"><a href="{% url 'ugel_mantenimiento' %}">Tabla UGEL</a></li>
-                <li class="dropdown-item"><a href="#">Tabla Instituciones</a></li>
-                <li class="dropdown-item"><a href="#">Tabla Personal</a></li>
-                <li class="dropdown-item"><a href="{% url 'cargo_listar' %}">Tabla Cargo</a></li>
-                <li class="dropdown-item"><a href="{% url 'nivel_listar' %}">Tabla Nivel</a></li>
-                <li class="dropdown-item"><a href="{% url 'turno_listar' %}">Tabla Turno</a></li>
-                <li class="dropdown-item"><a href="{% url 'distrito_listar' %}">Tabla Distrito</a></li>
-                <li class="dropdown-item"><a href="#">Tabla Maquinas</a></li>
-                <li class="dropdown-item"><a href="{% url 'falta_listar' %}">Tabla Faltas</a></li>
-                <li class="dropdown-item"><a href="{% url 'tardanza_listar' %}">Tabla Tardanzas</a></li>
-                <li class="dropdown-item"><a href="#">Tabla Corte</a></li>
-                <li class="dropdown-item"><a href="#">Tabla Usuarios</a></li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Nosotros</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Autenticación</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Salir</a>
-        </li>
-    </ul>
+      </ul>
+
+    </div>
+  </div>
 </nav>

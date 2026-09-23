@@ -6,26 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Control de Asistencia{% endblock %}</title>
     
-    <!-- CDN de Bootstrap 5 -->
+    <!-- 1. CDN de Bootstrap 5 CSS y Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Estilos Base -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- 2. Tus Estilos Locales (Se elimina style.css por estar vacío) -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    <!-- Bloque para CSS específico de cada vista (ej. ugel.css, faltas.css) -->
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100 bg-light">
 
-    <!-- 1. ENCABEZADO -->
-    <header class="header-main">
-        <div class="header-container">
-            <div class="logo-title-container">
-                {% if ugel and ugel.logo %}
-                    <img src="{{ ugel.logo.url }}" alt="Logo Institucional" class="img-logo">
-                {% else %}
-                    <img src="{% static 'img/logo_default.png' %}" alt="Logo Predeterminado" class="img-logo">
-                {% endif %}
-                <h1 class="inst-title">{{ ugel.nombre|default:"INSTITUCIÓN EDUCATIVA" }}</h1>
+    <!-- 1. ENCABEZADO PRINCIPAL -->
+    <header class="header-main bg-white border-bottom py-2">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    {% if ugel and ugel.logo %}
+                        <img src="{{ ugel.logo.url }}" alt="Logo Institucional" class="img-fluid" style="max-height: 50px;">
+                    {% else %}
+                        <img src="{% static 'img/logo_default.png' %}" alt="Logo Predeterminado" class="img-fluid" style="max-height: 50px;" onerror="this.style.display='none'">
+                    {% endif %}
+                    <h1 class="h4 mb-0 fw-bold text-dark text-uppercase inst-title">
+                        {{ ugel.nombre|default:"INSTITUCIÓN EDUCATIVA" }}
+                    </h1>
+                </div>
             </div>
         </div>
     </header>
@@ -33,48 +40,51 @@
     <!-- 2. NAVEGACIÓN Y SLOGAN -->
     {% include 'includes/navbar.html' %}
 
-    <div class="slogan-banner">
-        <marquee behavior="scroll" direction="left" scrollamount="5">
-            {{ ugel.eslogan|default:"Sistema de Control de Asistencia Remota - UGEL" }}
-        </marquee>
+    <div class="slogan-banner bg-primary-subtle border-bottom py-1">
+        <div class="container-fluid">
+            <marquee behavior="scroll" direction="left" scrollamount="5" class="fw-semibold text-primary mb-0">
+                {{ ugel.eslogan|default:"Sistema de Control de Asistencia Remota - UGEL" }}
+            </marquee>
+        </div>
     </div>
 
     <!-- 3. CUERPO DE LA PÁGINA -->
-    <main class="main-content">
-        <!-- Mensajes del Sistema (Django Messages) -->
+    <main class="main-content flex-grow-1 container my-4">
+        <!-- Mensajes del Sistema (Django Messages con clases Bootstrap) -->
         {% if messages %}
-            <div class="messages-container">
+            <div class="messages-container mb-3">
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
                         {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
 
         {% block content %}
-        <!-- Aquí se cargará el contenido de cada vista -->
+        <!-- Aquí se carga el contenido de cada vista -->
         {% endblock %}
     </main>
 
     <!-- 4. PIE DE PÁGINA -->
-    <footer class="footer-main">
-        <div class="footer-content">
-            <p>
+    <footer class="footer-main bg-dark text-light py-3 mt-auto">
+        <div class="container text-center small">
+            <p class="mb-1">
                 <strong>RUC:</strong> {{ ugel.ruc|default:"---------" }} | 
                 <strong>Dirección:</strong> {{ ugel.direccion|default:"No registrada" }}
             </p>
-            <p>
+            <p class="mb-0 text-white-50">
                 <strong>Correo:</strong> {{ ugel.correo|default:"contacto@ugel.gob.pe" }} | 
                 <strong>Teléfono:</strong> {{ ugel.telefono|default:"---" }}
             </p>
         </div>
     </footer>
 
-    <!-- JS de Bootstrap -->
+    <!-- JS de Bootstrap Bundle (Permite cerrar alertas y desplegar menús) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Tu archivo JS local -->
+    <!-- Script JS local -->
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>

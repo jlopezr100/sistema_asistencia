@@ -2,7 +2,8 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+import types
+sys.modules['cgi'] = types.ModuleType('cgi') # <-- Parche de compatibilidad para Django 6
 
 def main():
     """Run administrative tasks."""

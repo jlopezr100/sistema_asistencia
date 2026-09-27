@@ -100,6 +100,14 @@ DATABASES = {
     )
 }
 
+# 🔐 PARCHE CRUCIAL: Forzar SSL para MySQL en servidores de producción (Aiven)
+if not DEBUG and DATABASES['default'].get('ENGINE') == 'django.db.backends.mysql':
+    DATABASES['default']['OPTIONS'] = {
+        'ssl': {
+            'ssl_mode': 'REQUIRED'
+        }
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 

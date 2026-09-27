@@ -8,6 +8,9 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
 
 import os
+import sys
+import types
+sys.modules['cgi'] = types.ModuleType('cgi') # <-- Parche de compatibilidad para Gunicorn en Django 6
 
 from django.core.wsgi import get_wsgi_application
 

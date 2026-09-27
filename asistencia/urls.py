@@ -1,16 +1,10 @@
-<<<<<<< HEAD
-=======
 from django.contrib import admin
->>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
 from django.urls import path
 from . import views
 
 urlpatterns = [
-<<<<<<< HEAD
-=======
      path('admin/', admin.site.urls),
      
->>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
     path('', views.inicio_index, name='inicio'),
 
     path('ugel/', views.ugel_mantenimiento, name='ugel_mantenimiento'),
@@ -61,8 +55,4 @@ urlpatterns = [
     path('tardanzas/excel/', views.tardanza_exportar_excel, name='tardanza_excel'),
     
     path('nosotros/', views.nosotros, name='nosotros'),
-<<<<<<< HEAD
-=======
-
->>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
 ]

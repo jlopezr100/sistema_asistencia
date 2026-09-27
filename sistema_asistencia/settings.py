@@ -34,17 +34,18 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
-
+# Configuración de Cloudinary para Medios (Imágenes)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage', # <-- Antes de staticfiles
     'django.contrib.staticfiles',
+    'cloudinary',         # <-- Añadir aquí
     'asistencia',
 ]
-
 # Middleware (Añadir WhiteNoise justo después de SecurityMiddleware)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -105,19 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-]
-
-# Configuración de Cloudinary para Medios (Imágenes)
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'cloudinary_storage', # <-- Antes de staticfiles
-    'django.contrib.staticfiles',
-    'cloudinary',         # <-- Añadir aquí
-    'asistencia',
 ]
 
 CLOUDINARY_STORAGE = {

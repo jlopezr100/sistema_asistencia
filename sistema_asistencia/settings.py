@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Django settings for sistema_asistencia project.
 
@@ -46,6 +47,22 @@ INSTALLED_APPS = [
     'cloudinary',         # <-- Añadir aquí
     'asistencia',
 ]
+=======
+import os
+import dj_database_url
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-default')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+
+
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
 # Middleware (Añadir WhiteNoise justo después de SecurityMiddleware)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,7 +77,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'sistema_asistencia.urls'
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -72,14 +92,20 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+<<<<<<< HEAD
                 'asistencia.context_processors.ugel_context', #para mostrar datos de la ugel en todas las paginas
+=======
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
             ],
         },
     },
 ]
 
+<<<<<<< HEAD
 WSGI_APPLICATION = 'sistema_asistencia.wsgi.application'
 
+=======
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
 # Configuración de Base de Datos con Aiven / Local
 DATABASES = {
     'default': dj_database_url.config(
@@ -89,6 +115,7 @@ DATABASES = {
     )
 }
 
+<<<<<<< HEAD
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -106,6 +133,19 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+=======
+# Configuración de Cloudinary para Medios (Imágenes)
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'cloudinary_storage', # <-- Antes de staticfiles
+    'django.contrib.staticfiles',
+    'cloudinary',         # <-- Añadir aquí
+    'asistencia',
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f
 ]
 
 CLOUDINARY_STORAGE = {
@@ -126,6 +166,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Usar la clase de almacenamiento sin manifest estricto
+<<<<<<< HEAD
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Archivos de medios (Subidos por usuarios)
@@ -142,3 +183,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+=======
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f

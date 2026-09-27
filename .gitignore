@@ -4,4 +4,8 @@ __pycache__/
 .env
 db.sqlite3
 staticfiles/
+<<<<<<< HEAD
 .vscode/
+=======
+.vscode/
+>>>>>>> 4077843d802b1ccc565f83da5322f2e60666180f

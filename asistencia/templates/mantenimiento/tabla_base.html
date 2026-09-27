@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tabla_mantenimiento.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="mantenimiento-container">
+
+    <!-- BLOQUE DE MENSAJES DE NOTIFICACIÓN (ÉXITO / ERROR) -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert-message {% if message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- BARRA SUPERIOR DE ACCIONES Y BÚSQUEDA -->
+    <div class="top-action-bar">
+        <div class="action-buttons">
+            <a href="{% url url_crear %}" class="btn-crud btn-add">+ Agregar {{ nombre_singular }}</a>
+
+            <a href="{% url url_pdf %}?q={{ request.GET.q }}&filtro={{ request.GET.filtro }}" target="_blank"
+                class="btn-crud btn-pdf" style="text-decoration: none;">
+                Imprime PDF
+            </a>
+
+            <a href="{% url url_excel %}?q={{ request.GET.q }}&filtro={{ request.GET.filtro }}"
+                class="btn-crud btn-excel" style="text-decoration: none;">
+                Descarga Excel
+            </a>
+        </div>
+
+        <form method="GET" class="search-filter-form">
+            <select name="filtro" class="form-select">
+                <option value="">-- Todos --</option>
+                <option value="activos" {% if 'activos' in request.GET.filtro %}selected{% endif %}>Activos</option>
+                <option value="inactivos" {% if 'inactivos' in request.GET.filtro %}selected{% endif %}>Inactivos
+                </option>
+            </select>
+
+            <div class="search-input-group">
+                <input type="text" name="q" value="{{ request.GET.q|default:'' }}"
+                    placeholder="Buscar por {{ campo_busqueda }}..." class="form-input-search">
+                <button type="submit" class="btn-crud btn-search">Buscar</button>
+            </div>
+
+            <!-- BOTÓN SALIR UBICADO AL LADO DERECHO DE BUSCAR -->
+            <a href="{% url 'inicio' %}" class="btn-crud btn-salir">Salir</a>
+        </form>
+    </div>
+
+    <!-- ENCABEZADO DE SECCIÓN -->
+    <div class="section-header">
+        <h2>{{ titulo_seccion }}</h2>
+    </div>
+
+    <!-- GRILLA / TABLA DE DATOS -->
+    <div class="table-responsive" id="contenedor-tabla-mantenimiento">
+        <table class="crud-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Id</th>
+                    {% block columnas_header %}{% endblock %}
+                    <th style="width: 110px; text-align: center;">Estado</th>
+                    <th style="width: 180px; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% block filas_tabla %}{% endblock %}
+            </tbody>
+        </table>
+
+        {% include 'includes/paginacion.html' with hx_target='#contenedor-tabla-mantenimiento' %}
+    </div>
+</div>
+
+{% include 'includes/modal_anular.html' %}
+
+<script>
+    function abrirModalAnularConData(elemento) {
+        const modal = document.getElementById('modal-confirmacion');
+        const form = document.getElementById('form-eliminar');
+        const titulo = document.getElementById('modal-registro-titulo');
+
+        const urlEliminar = elemento.getAttribute('data-url');
+        const nombreRegistro = elemento.getAttribute('data-nombre');
+
+        if (modal && form && titulo) {
+            form.action = urlEliminar;
+            titulo.textContent = nombreRegistro;
+            modal.showModal();
+        }
+    }
+
+    function cerrarModalGlobal() {
+        const modal = document.getElementById('modal-confirmacion');
+        if (modal) modal.close();
+    }
+</script>
+{% endblock %}

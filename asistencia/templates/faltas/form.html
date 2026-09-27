@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/faltas.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="form-card">
+        <div class="form-header">
+            <h2>{{ titulo_formulario }}</h2>
+        </div>
+
+        <form method="post" class="form-body">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert-danger-custom">
+                    {% for error in form.non_field_errors %}
+                        <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Campo Tipo de Falta -->
+            <div class="form-group-custom">
+                <label for="{{ form.tipo_falta.id_for_label }}">Tipo de Falta <span class="required">*</span></label>
+                {{ form.tipo_falta }}
+                {% if form.tipo_falta.errors %}
+                    {% for error in form.tipo_falta.errors %}
+                        <span class="field-error-msg">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Campo Descripción -->
+            <div class="form-group-custom">
+                <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    {% for error in form.descripcion.errors %}
+                        <span class="field-error-msg">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Checkboxes de Justificable y Estado -->
+            <div class="checkbox-group-wrapper">
+                <label class="checkbox-item">
+                    {{ form.justificable }}
+                    <span>¿Es Justificable?</span>
+                </label>
+
+                <label class="checkbox-item">
+                    {{ form.estado }}
+                    <span>Activo</span>
+                </label>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="form-actions-custom">
+                <button type="submit" class="btn-submit">Guardar</button>
+                <a href="{% url url_cancelar %}" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+/* ==========================================
+   Estilos para Formularios de Mantenimiento
+   ========================================== */
+
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 15px;
+    min-height: calc(100vh - 200px);
+}
+
+.form-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 580px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.form-header {
+    background-color: #1B365D;
+    color: #ffffff;
+    padding: 18px 25px;
+    text-align: center;
+}
+
+.form-header h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.form-body {
+    padding: 30px;
+}
+
+.form-group-custom {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-custom label {
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.form-group-custom label .required {
+    color: #d9534f;
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+    font-family: inherit;
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: #1B365D;
+    box-shadow: 0 0 5px rgba(27, 54, 93, 0.25);
+}
+
+.checkbox-group-wrapper {
+    display: flex;
+    gap: 30px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    padding: 10px 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #eeeeee;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.form-check-input-custom {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #1B365D;
+}
+
+.form-actions-custom {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-submit {
+    background-color: #1B365D;
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #132743;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+    color: white;
+}
+
+.field-error-msg {
+    color: #d9534f;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.alert-danger-custom {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}

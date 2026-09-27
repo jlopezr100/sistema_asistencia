@@ -1,0 +1,48 @@
+{% extends 'mantenimiento/tabla_base.html' %}
+
+{% block columnas_header %}
+    <th>Tipo de Tardanza</th>
+    <th>Descripción</th>
+    <th style="text-align: center;">¿Justificable?</th>
+{% endblock %}
+
+{% block filas_tabla %}
+    {% for tardanza in page_obj %}
+    <tr>
+        <td style="text-align: center;"><strong>{{ tardanza.id }}</strong></td>
+        <td>{{ tardanza.tipo_tardanza }}</td>
+        <td>{{ tardanza.descripcion|default:"-" }}</td>
+        <td style="text-align: center;">
+            {% if tardanza.justificable %}
+                <span style="color: #27ae60; font-weight: bold;">Sí</span>
+            {% else %}
+                <span style="color: #e74c3c; font-weight: bold;">No</span>
+            {% endif %}
+        </td>
+        <td style="text-align: center;">
+            {% if tardanza.estado %}
+                <span class="badge-activo">Activo</span>
+            {% else %}
+                <span class="badge-inactivo">Inactivo</span>
+            {% endif %}
+        </td>
+        <td style="text-align: center;">
+            <div class="acciones-cell">
+                <a href="{% url 'tardanza_editar' tardanza.id %}" class="btn-action-edit">Editar</a>
+                <button type="button" class="btn-action-delete" 
+                        data-url="{% url 'tardanza_anular' tardanza.id %}"
+                        data-nombre="{{ tardanza.tipo_tardanza }}"
+                        onclick="abrirModalAnularConData(this)">
+                    Anular
+                </button>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" style="text-align: center; padding: 25px; color: #777;">
+            No se encontraron tardanzas registradas.
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

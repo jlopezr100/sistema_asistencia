@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- Inyección exclusiva del CSS de UGEL -->
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ugel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ugel-card">
+    <div class="mantenimiento-header d-flex justify-content-between align-items-center">
+        <h2>{{ titulo_tabla }}</h2>
+        <a href="{% url 'inicio' %}" class="btn btn-salir">Salir</a>
+    </div>
+
+    <div class="ugel-body">
+        <form method="POST" enctype="multipart/form-data" class="ugel-grid">
+            {% csrf_token %}
+
+            <!-- COLUMNA 1: DATOS DE CONTACTO E IDENTIFICACIÓN -->
+            <div class="ugel-col">
+                <div class="ugel-group">
+                    <label for="{{ form.nombre.id_for_label }}">Nombre de la UGEL / Institución:</label>
+                    {{ form.nombre }}
+                </div>
+
+                <div class="ugel-row-2">
+                    <div class="ugel-group">
+                        <label for="{{ form.ruc.id_for_label }}">RUC:</label>
+                        {{ form.ruc }}
+                    </div>
+                    <div class="ugel-group">
+                        <label for="{{ form.telefono.id_for_label }}">Teléfono:</label>
+                        {{ form.telefono }}
+                    </div>
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.direccion.id_for_label }}">Dirección:</label>
+                    {{ form.direccion }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.correo.id_for_label }}">Correo Electrónico:</label>
+                    {{ form.correo }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.eslogan.id_for_label }}">Eslogan:</label>
+                    {{ form.eslogan }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.logo.id_for_label }}">Logo Institucional:</label>
+                    {{ form.logo }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.banner.id_for_label }}">Banner Institucional:</label>
+                    {{ form.banner }}
+                </div>
+            </div>
+
+            <!-- COLUMNA 2: DATOS DESCRIPTIVOS E INSTITUCIONALES -->
+            <div class="ugel-col">
+                <div class="ugel-group">
+                    <label for="{{ form.quienes_somos.id_for_label }}">Quiénes Somos:</label>
+                    {{ form.quienes_somos }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.mision.id_for_label }}">Misión:</label>
+                    {{ form.mision }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.vision.id_for_label }}">Visión:</label>
+                    {{ form.vision }}
+                </div>
+
+                <div class="ugel-group">
+                    <label for="{{ form.descripcion.id_for_label }}">Descripción Adicional:</label>
+                    {{ form.descripcion }}
+                </div>
+
+                <div class="ugel-actions">
+                    <button type="submit" class="btn-guardar-ugel">Guardar Datos de UGEL</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

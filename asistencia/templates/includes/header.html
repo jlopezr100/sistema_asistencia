@@ -1,0 +1,20 @@
+<header class="header-main">
+    <div class="logo-title-container">
+        {% if ugel and ugel.logo %}
+            <img src="{{ ugel.logo.url }}" alt="Logo" class="img-logo">
+        {% else %}
+            <img src="/static/img/logo_default.png" alt="Logo" class="img-logo">
+        {% endif %}
+        <h1 class="inst-title">{{ ugel.nombre|default:"INSTITUCIÓN EDUCATIVA" }}</h1>
+    </div>
+
+    <!-- Menú de navegación -->
+    {% include 'includes/navbar.html' %}
+</header>
+
+<!-- Cinta del Eslogan -->
+<div class="slogan-banner">
+    <marquee behavior="scroll" direction="left">
+        {{ ugel.eslogan|default:"Sistema de Control de Asistencia Institucional" }}
+    </marquee>
+</div>

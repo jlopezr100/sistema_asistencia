@@ -54,10 +54,10 @@ urlpatterns = [
     path('tardanzas/pdf/', views.tardanza_reporte_pdf, name='tardanza_pdf'),
     path('tardanzas/excel/', views.tardanza_exportar_excel, name='tardanza_excel'),
 
-    path('instituciones/', instituciones_views.institucion_listar, name='institucion_listar'),
-    path('instituciones/crear/', instituciones_views.institucion_crear, name='institucion_crear'),
-    path('instituciones/editar/<int:pk>/', instituciones_views.institucion_editar, name='institucion_editar'),
-    path('instituciones/anular/<int:pk>/', instituciones_views.institucion_anular, name='institucion_anular'),
+    path('instituciones/', views.institucion_listar, name='institucion_listar'),
+    path('instituciones/crear/', views.institucion_crear, name='institucion_crear'),
+    path('instituciones/editar/<int:pk>/', views.institucion_editar, name='institucion_editar'),
+    path('instituciones/anular/<int:pk>/', views.institucion_anular, name='institucion_anular'),
 
     
     path('nosotros/', views.nosotros, name='nosotros'),

@@ -64,6 +64,16 @@ urlpatterns = [
 
     # En asistencia/urls.py
     path('instituciones/validar-codigo/', views.verificar_codigo_modular, name='verificar_codigo_modular'),
+
+    # Personal
+    path('personal/', views.personal_listar, name='personal_listar'),
+    path('personal/crear/', views.personal_crear, name='personal_crear'),
+    path('personal/editar/<int:pk>/', views.personal_editar, name='personal_editar'),
+    path('personal/anular/<int:pk>/', views.personal_anular, name='personal_anular'),
+    path('personal/pdf/', views.personal_reporte_pdf, name='personal_pdf'),
+    path('personal/excel/', views.personal_exportar_excel, name='personal_excel'),
+    path('personal/validar/', views.verificar_unicidad_personal, name='verificar_unicidad_personal'),
+    
     
     path('nosotros/', views.nosotros, name='nosotros'),
 ]

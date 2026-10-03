@@ -139,4 +139,50 @@ class Institucion(models.Model):
 
     def __str__(self):
         return f"{self.codigo_modular} - {self.nombre}"
+
+# asistencia/models.py
+class Personal(models.Model):
+    DIAS_DESCANSO = [
+        ('LUNES', 'Lunes'),
+        ('MARTES', 'Martes'),
+        ('MIERCOLES', 'Miércoles'),
+        ('JUEVES', 'Jueves'),
+        ('VIERNES', 'Viernes'),
+    ]
+
+    cod_modular = models.CharField(max_length=12, unique=True, verbose_name="Código Modular")
+    dni = models.CharField(max_length=8, unique=True, verbose_name="DNI")
+    apellidos = models.CharField(max_length=50, verbose_name="Apellidos")
+    nombres = models.CharField(max_length=50, verbose_name="Nombres")
     
+    # Captura biométrica
+    huella_indice = models.TextField(unique=True, null=True, blank=True, verbose_name="Huella Índice")
+    huella_pulgar = models.TextField(unique=True, null=True, blank=True, verbose_name="Huella Pulgar")
+    
+    # Horarios de jornada
+    h_entrada = models.TimeField(verbose_name="Hora de Entrada")
+    h_salida = models.TimeField(verbose_name="Hora de Salida")
+    
+    condicion = models.BooleanField(default=True, verbose_name="Estado/Condición")
+    dia_descanso = models.CharField(
+        max_length=15, 
+        choices=DIAS_DESCANSO, 
+        null=True, 
+        blank=True, 
+        verbose_name="Día de Descanso"
+    )
+    
+    # Relaciones con otras tablas
+    cargo = models.ForeignKey('Cargo', on_delete=models.PROTECT, verbose_name="Cargo")
+    institucion = models.ForeignKey('Institucion', on_delete=models.PROTECT, verbose_name="Institución")
+    distrito = models.ForeignKey('Distrito', on_delete=models.PROTECT, verbose_name="Distrito")
+    nivel = models.ForeignKey('Nivel', on_delete=models.PROTECT, verbose_name="Nivel Educativo")
+    turno = models.ForeignKey('Turno', on_delete=models.PROTECT, verbose_name="Turno")
+
+    class Meta:
+        verbose_name = "Personal"
+        verbose_name_plural = "Personal"
+        ordering = ['-id']
+
+    def __str__(self):
+        return f"{self.apellidos}, {self.nombres} ({self.dni})"

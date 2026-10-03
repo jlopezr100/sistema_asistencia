@@ -6,6 +6,7 @@ from .models import Turno
 from .models import Distrito
 from .models import Institucion
 from .models import Falta, Tardanza
+from .models import Personal
 
 
 class UgelForm(forms.ModelForm):
@@ -223,4 +224,58 @@ class InstitucionForm(forms.ModelForm):
         if queryset.exists():
             raise forms.ValidationError("El Código Modular ya se encuentra registrado.")
         return codigo
+
+# asistencia/forms.py
+class PersonalForm(forms.ModelForm):
+    class Meta:
+        model = Personal
+        fields = [
+            'cod_modular', 'dni', 'apellidos', 'nombres', 
+            'h_entrada', 'h_salida', 'dia_descanso', 'condicion',
+            'cargo', 'institucion', 'distrito', 'nivel', 'turno',
+            'huella_indice', 'huella_pulgar'
+        ]
+        widgets = {
+            'cod_modular': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Cód. Modular (12 dígitos)'}),
+            'dni': forms.TextInput(attrs={'class': 'form-input-search', 'maxlength': '8', 'placeholder': 'DNI (8 dígitos)'}),
+            'apellidos': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Apellidos completos'}),
+            'nombres': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombres completos'}),
+            'h_entrada': forms.TimeInput(attrs={'class': 'form-input-search', 'type': 'time'}),
+            'h_salida': forms.TimeInput(attrs={'class': 'form-input-search', 'type': 'time'}),
+            'dia_descanso': forms.Select(attrs={'class': 'form-select'}),
+            'cargo': forms.Select(attrs={'class': 'form-select'}),
+            'institucion': forms.Select(attrs={'class': 'form-select'}),
+            'distrito': forms.Select(attrs={'class': 'form-select'}),
+            'nivel': forms.Select(attrs={'class': 'form-select'}),
+            'turno': forms.Select(attrs={'class': 'form-select'}),
+            'condicion': forms.CheckboxInput(attrs={'style': 'transform: scale(1.3); cursor: pointer;'}),
+            'huella_indice': forms.HiddenInput(attrs={'id': 'id_huella_indice'}),
+            'huella_pulgar': forms.HiddenInput(attrs={'id': 'id_huella_pulgar'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cargo'].queryset = Cargo.objects.filter(estado=True)
+        self.fields['institucion'].queryset = Institucion.objects.filter(estado=True)
+        self.fields['distrito'].queryset = Distrito.objects.filter(estado=True)
+        self.fields['nivel'].queryset = Nivel.objects.filter(estado=True)
+        self.fields['turno'].queryset = Turno.objects.filter(estado=True)
+
+    def clean_cod_modular(self):
+        cod = self.cleaned_data.get('cod_modular')
+        qs = Personal.objects.filter(cod_modular=cod)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("El Código Modular ya se encuentra registrado.")
+        return cod
+
+    def clean_dni(self):
+        dni = self.cleaned_data.get('dni')
+        qs = Personal.objects.filter(dni=dni)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("El DNI ingresado ya pertenece a otro personal.")
+        return dni
     

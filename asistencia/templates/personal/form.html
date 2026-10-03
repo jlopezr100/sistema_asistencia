@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 30px auto; background: #ffffff; padding: 30px 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+    
+    <div style="border-bottom: 2px solid #1F4E78; padding-bottom: 12px; margin-bottom: 25px;">
+        <h2 style="color: #1F4E78; margin: 0; font-size: 1.5rem; font-weight: bold;">
+            {{ titulo_formulario }}
+        </h2>
+    </div>
+
+    <form method="POST" id="form-personal">
+        {% csrf_token %}
+        
+        <!-- Rejilla en 2 Columnas -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Cód. Modular -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Código Modular *</label>
+                {{ form.cod_modular }}
+                <small id="msg-cod_modular" style="display: block; margin-top: 4px; font-weight: 600;"></small>
+                {% if form.cod_modular.errors %}
+                    <span style="color: #e74c3c; font-size: 0.85rem; font-weight: bold;">{{ form.cod_modular.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <!-- DNI -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">DNI *</label>
+                {{ form.dni }}
+                <small id="msg-dni" style="display: block; margin-top: 4px; font-weight: 600;"></small>
+                {% if form.dni.errors %}
+                    <span style="color: #e74c3c; font-size: 0.85rem; font-weight: bold;">{{ form.dni.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Apellidos -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Apellidos *</label>
+                {{ form.apellidos }}
+            </div>
+
+            <!-- Nombres -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Nombres *</label>
+                {{ form.nombres }}
+            </div>
+
+            <!-- Cargo -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Cargo *</label>
+                {{ form.cargo }}
+            </div>
+
+            <!-- Institución -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Institución Educativa *</label>
+                {{ form.institucion }}
+            </div>
+
+            <!-- Distrito -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Distrito *</label>
+                {{ form.distrito }}
+            </div>
+
+            <!-- Nivel Educativo -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Nivel Educativo *</label>
+                {{ form.nivel }}
+            </div>
+
+            <!-- Turno -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Turno *</label>
+                {{ form.turno }}
+            </div>
+
+            <!-- Día de Descanso -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Día de Descanso (Opcional)</label>
+                {{ form.dia_descanso }}
+            </div>
+
+            <!-- Hora Entrada -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Hora de Entrada *</label>
+                {{ form.h_entrada }}
+            </div>
+
+            <!-- Hora Salida -->
+            <div>
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Hora de Salida *</label>
+                {{ form.h_salida }}
+            </div>
+
+            <!-- Condición / Estado -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
+                {{ form.condicion }}
+                <label for="{{ form.condicion.id_for_label }}" style="font-weight: 600; color: #2c3e50; cursor: pointer; margin: 0;">
+                    Personal Activo
+                </label>
+            </div>
+
+        </div>
+
+        <!-- SECCIÓN CAPTURA BIOMÉTRICA (TABLET) -->
+        <div style="background: #F8F9FA; padding: 20px; border-radius: 8px; border: 1px solid #E0E0E0; margin-bottom: 25px;">
+            <h4 style="margin-top: 0; color: #1F4E78; font-size: 1.1rem; border-bottom: 1px solid #DDD; padding-bottom: 8px;">
+                Capacidad Biométrica (Registro de Huellas)
+            </h4>
+
+            {{ form.huella_indice }}
+            {{ form.huella_pulgar }}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; margin-top: 15px;">
+                
+                <!-- Recuadro Huella Índice -->
+                <div style="border: 2px dashed #1F4E78; padding: 20px; border-radius: 8px; background: #FFF;">
+                    <div style="font-size: 2.2rem; margin-bottom: 5px;">☝️</div>
+                    <strong style="display: block; color: #2C3E50;">Dedo Índice</strong>
+                    <span id="st-indice" style="display: block; font-size: 0.85rem; color: #7F8C8D; margin: 8px 0;">
+                        {% if form.huella_indice.value %}✓ Huella capturada{% else %}No registrada{% endif %}
+                    </span>
+                    <button type="button" onclick="capturarHuella('indice')" 
+                            style="padding: 8px 16px; background: #1F4E78; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                        Capturar Índice
+                    </button>
+                </div>
+
+                <!-- Recuadro Huella Pulgar -->
+                <div style="border: 2px dashed #1F4E78; padding: 20px; border-radius: 8px; background: #FFF;">
+                    <div style="font-size: 2.2rem; margin-bottom: 5px;">👍</div>
+                    <strong style="display: block; color: #2C3E50;">Dedo Pulgar</strong>
+                    <span id="st-pulgar" style="display: block; font-size: 0.85rem; color: #7F8C8D; margin: 8px 0;">
+                        {% if form.huella_pulgar.value %}✓ Huella capturada{% else %}No registrada{% endif %}
+                    </span>
+                    <button type="button" onclick="capturarHuella('pulgar')" 
+                            style="padding: 8px 16px; background: #1F4E78; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                        Capturar Pulgar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Botones Centrados -->
+        <div style="display: flex; justify-content: center; gap: 15px; border-top: 1px solid #E0E0E0; padding-top: 25px;">
+            <a href="{% url 'personal_listar' %}" 
+               style="padding: 10px 24px; background-color: #6C757D; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Cancelar
+            </a>
+            <button type="submit" id="btn-guardar"
+                    style="padding: 10px 28px; background-color: #1F4E78; color: #FFF; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                Guardar Personal
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<!-- Modal para Simulación / Lectura de Tablet -->
+<div id="modal-biometrico" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+    <div style="background: #FFF; padding: 30px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
+        <h3 id="modal-titulo" style="margin-top: 0; color: #1F4E78;">Apoye el dedo</h3>
+        <p style="color: #555; font-size: 0.9rem;">Coloque firmemente el dedo sobre el lector de la tablet.</p>
+        <div style="font-size: 4rem; margin: 15px 0;" id="modal-icono">👆</div>
+        <div id="modal-status" style="font-weight: bold; color: #E67E22;">Esperando lectura...</div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const personaId = "{{ persona.id|default:'' }}";
+    const btnGuardar = document.getElementById('btn-guardar');
+
+    function validarCampoUnico(idInput, idMsg, nombreCampo) {
+        const input = document.getElementById(idInput);
+        const msg = document.getElementById(idMsg);
+        if (!input) return;
+
+        input.addEventListener('input', function() {
+            const valor = this.value.trim();
+            if (valor.length < 3) {
+                msg.textContent = '';
+                btnGuardar.disabled = false;
+                return;
+            }
+
+            fetch(`{% url 'verificar_unicidad_personal' %}?campo=${nombreCampo}&valor=${encodeURIComponent(valor)}&id=${personaId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.existe) {
+                        msg.style.color = '#e74c3c';
+                        msg.textContent = `❌ Este ${nombreCampo.replace('_', ' ')} ya existe.`;
+                        btnGuardar.disabled = true;
+                        btnGuardar.style.opacity = '0.5';
+                    } else {
+                        msg.style.color = '#27ae60';
+                        msg.textContent = `✓ ${nombreCampo.replace('_', ' ')} disponible.`;
+                        btnGuardar.disabled = false;
+                        btnGuardar.style.opacity = '1';
+                    }
+                });
+        });
+    }
+
+    validarCampoUnico('id_cod_modular', 'msg-cod_modular', 'cod_modular');
+    validarCampoUnico('id_dni', 'msg-dni', 'dni');
+});
+
+function capturarHuella(tipo) {
+    const modal = document.getElementById('modal-biometrico');
+    const titulo = document.getElementById('modal-titulo');
+    const icono = document.getElementById('modal-icono');
+    const status = document.getElementById('modal-status');
+    
+    titulo.textContent = tipo === 'indice' ? 'Apoye el Dedo Índice' : 'Apoye el Dedo Pulgar';
+    icono.textContent = tipo === 'indice' ? '☝️' : '👍';
+    status.textContent = 'Leyendo huella digital...';
+    modal.style.display = 'flex';
+
+    setTimeout(() => {
+        const hashHuella = "BIO_" + tipo.toUpperCase() + "_" + Math.random().toString(36).substring(2, 12);
+        
+        document.getElementById('id_huella_' + tipo).value = hashHuella;
+        document.getElementById('st-' + tipo).textContent = "✓ Huella capturada";
+        document.getElementById('st-' + tipo).style.color = "#27AE60";
+        
+        status.textContent = "¡Lectura Exitosa!";
+        status.style.color = "#27AE60";
+        
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 800);
+    }, 1800);
+}
+</script>
+{% endblock %}

@@ -1,5 +1,5 @@
 from .inicio_views import *
-from .instituciones_views import *
+from .instituciones_views import institucion_listar, institucion_crear, institucion_editar
 from .nosotros_views import *
 from .ugel_views import *
 from .ugel_views import ugel_mantenimiento

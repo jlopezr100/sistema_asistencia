@@ -4,6 +4,7 @@ from .models import Cargo
 from .models import Nivel
 from .models import Turno
 from .models import Distrito
+from .models import Institucion
 from .models import Falta, Tardanza
 
 class UgelForm(forms.ModelForm):
@@ -183,4 +184,30 @@ class TardanzaForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError("Ya existe un tipo de tardanza registrado con este nombre.")
         return tipo_tardanza
-    
+
+# asistencia/forms.py
+from django import forms
+from .models import Institucion, Turno, Distrito
+
+class InstitucionForm(forms.ModelForm):
+    class Meta:
+        model = Institucion
+        fields = ['codigo_modular', 'nombre', 'direccion', 'tolerancia', 'turno', 'distrito', 'latitud', 'longitud', 'estado']
+        widgets = {
+            'codigo_modular': forms.TextInput(attrs={'class': 'form-input-search', 'maxlength': '12', 'placeholder': 'Ej. 1234567'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombre de la I.E.'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Dirección completa'}),
+            'tolerancia': forms.NumberInput(attrs={'class': 'form-input-search', 'min': '0'}),
+            'turno': forms.Select(attrs={'class': 'form-select'}),
+            'distrito': forms.Select(attrs={'class': 'form-select'}),
+            'latitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-9.12345678'}),
+            'longitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-77.12345678'}),
+            'estado': forms.CheckboxInput(attrs={'style': 'transform: scale(1.2); cursor: pointer;'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrar combos únicamente con turnos y distritos activos
+        self.fields['turno'].queryset = Turno.objects.filter(estado=True)
+        self.fields['distrito'].queryset = Distrito.objects.filter(estado=True)
+

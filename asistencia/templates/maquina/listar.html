@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 30px auto; background: #FFFFFF; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1F4E78; padding-bottom: 15px; margin-bottom: 20px;">
+        <h2 style="color: #1F4E78; margin: 0; font-weight: bold;">🖥️ Gestión de Máquinas / Dispositivos</h2>
+        <a href="{% url 'maquina_crear' %}" 
+           style="padding: 10px 20px; background-color: #27AE60; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 600;">
+            + Registrar Máquina
+        </a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="background-color: #1F4E78; color: white; text-align: left;">
+                <th style="padding: 12px;">ID</th>
+                <th style="padding: 12px;">Serie Dispositivo</th>
+                <th style="padding: 12px;">Institución Educativa</th>
+                <th style="padding: 12px;">Fecha Registro</th>
+                <th style="padding: 12px; text-align: center;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in maquinas %}
+            <tr style="border-bottom: 1px solid #DDD;">
+                <td style="padding: 12px; font-weight: bold;">{{ m.id }}</td>
+                <td style="padding: 12px; font-family: monospace; font-size: 0.95rem;">{{ m.serie_dispositivo }}</td>
+                <td style="padding: 12px;">{{ m.institucion.nombre }}</td>
+                <td style="padding: 12px;">{{ m.fecha_registro|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <a href="{% url 'maquina_editar' m.id %}" style="color: #2980B9; font-weight: 600; margin-right: 12px; text-decoration: none;">Editar</a>
+                    <a href="{% url 'maquina_eliminar' m.id %}" style="color: #E74C3C; font-weight: 600; text-decoration: none;">Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 25px; color: #7F8C8D;">
+                    No hay máquinas registradas en el sistema.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

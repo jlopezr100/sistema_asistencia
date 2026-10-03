@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; background: #FFFFFF; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+    
+    <div style="border-bottom: 2px solid #1F4E78; padding-bottom: 12px; margin-bottom: 25px;">
+        <h2 style="color: #1F4E78; margin: 0; font-size: 1.5rem; font-weight: bold;">
+            {{ titulo_formulario }}
+        </h2>
+    </div>
+
+    <!-- Alerta de Máquina Ya Registrada -->
+    <div id="alerta-duplicado" style="display: none; background-color: #f8d7da; color: #721c24; padding: 12px 20px; border-radius: 6px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-weight: 600;">
+        ⚠️ Esta máquina/dispositivo ya se encuentra asignada a otra institución. No se puede duplicar.
+    </div>
+
+    <form method="POST" id="form-maquina">
+        {% csrf_token %}
+
+        <!-- Serie del Dispositivo -->
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2C3E50;">
+                Serie del Dispositivo (Auto-Detectada) *
+            </label>
+            {{ form.serie_dispositivo }}
+            <small id="msg-serie" style="display: block; margin-top: 5px; font-weight: 600;"></small>
+            {% if form.serie_dispositivo.errors %}
+                <span style="color: #e74c3c; font-size: 0.85rem;">{{ form.serie_dispositivo.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <!-- Combobox Institución -->
+        <div style="margin-bottom: 25px;">
+            <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2C3E50;">
+                Institución Educativa *
+            </label>
+            {{ form.institucion }}
+            {% if form.institucion.errors %}
+                <span style="color: #e74c3c; font-size: 0.85rem;">{{ form.institucion.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <!-- Botones de Acción -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #E0E0E0; padding-top: 20px;">
+            <a href="{% url 'maquina_listar' %}" 
+               style="padding: 10px 22px; background-color: #6C757D; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Cancelar
+            </a>
+            <button type="submit" id="btn-guardar"
+                    style="padding: 10px 26px; background-color: #1F4E78; color: #FFF; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                Guardar Máquina
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputSerie = document.getElementById('id_serie_dispositivo');
+    const msgSerie = document.getElementById('msg-serie');
+    const alertaDuplicado = document.getElementById('alerta-duplicado');
+    const btnGuardar = document.getElementById('btn-guardar');
+    const maquinaId = "{{ maquina.id|default:'' }}";
+
+    // Generador o recuperador de identificador único del hardware/navegador
+    function obtenerSerieUnica() {
+        let serie = localStorage.getItem('DEVICE_HARDWARE_ID');
+        if (!serie) {
+            // Generar UUID estático de la máquina
+            serie = 'DEV-' + 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16).toUpperCase();
+            });
+            localStorage.setItem('DEVICE_HARDWARE_ID', serie);
+        }
+        return serie;
+    }
+
+    // Si es un registro nuevo, auto-asignar la serie detectada
+    if (!inputSerie.value) {
+        inputSerie.value = obtenerSerieUnica();
+    }
+
+    // Validar si la máquina ya existe en la base de datos
+    function verificarDuplicado() {
+        const serie = inputSerie.value;
+        fetch(`{% url 'verificar_unicidad_maquina' %}?serie=${encodeURIComponent(serie)}&id=${maquinaId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    alertaDuplicado.style.display = 'block';
+                    msgSerie.style.color = '#e74c3c';
+                    msgSerie.textContent = '❌ Este equipo ya se encuentra registrado en el sistema.';
+                    btnGuardar.disabled = true;
+                    btnGuardar.style.opacity = '0.5';
+                    btnGuardar.style.cursor = 'not-allowed';
+                } else {
+                    alertaDuplicado.style.display = 'none';
+                    msgSerie.style.color = '#27ae60';
+                    msgSerie.textContent = '✓ Equipo verificado y disponible para registro.';
+                    btnGuardar.disabled = false;
+                    btnGuardar.style.opacity = '1';
+                    btnGuardar.style.cursor = 'pointer';
+                }
+            });
+    }
+
+    verificarDuplicado();
+});
+</script>
+{% endblock %}

@@ -1,4 +1,6 @@
 from django.db import models
+#from .models import Institucion # Asegúrate de que la clase Institucion esté importada
+
 
 class Ugel(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre de la Institución/UGEL")
@@ -186,3 +188,17 @@ class Personal(models.Model):
 
     def __str__(self):
         return f"{self.apellidos}, {self.nombres} ({self.dni})"
+
+
+class Maquina(models.Model):
+    serie_dispositivo = models.CharField(max_length=100, unique=True, verbose_name="Serie del Dispositivo")
+    institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE, related_name="maquinas", verbose_name="Institución Educativa")
+    fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
+
+    class Meta:
+        verbose_name = "Máquina"
+        verbose_name_plural = "Máquinas"
+        ordering = ['-id']
+
+    def __str__(self):
+        return f"{self.serie_dispositivo} - {self.institucion.nombre}"

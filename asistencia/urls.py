@@ -73,7 +73,12 @@ urlpatterns = [
     path('personal/pdf/', views.personal_reporte_pdf, name='personal_pdf'),
     path('personal/excel/', views.personal_exportar_excel, name='personal_excel'),
     path('personal/validar/', views.verificar_unicidad_personal, name='verificar_unicidad_personal'),
-    
+
+    path('maquinas/', views.maquina_listar, name='maquina_listar'),
+    path('maquinas/crear/', views.maquina_crear, name='maquina_crear'),
+    path('maquinas/editar/<int:pk>/', views.maquina_editar, name='maquina_editar'),
+    path('maquinas/eliminar/<int:pk>/', views.maquina_eliminar, name='maquina_eliminar'),
+    path('maquinas/verificar-unicidad/', views.verificar_unicidad_maquina, name='verificar_unicidad_maquina'),
     
     path('nosotros/', views.nosotros, name='nosotros'),
 ]

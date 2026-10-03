@@ -7,6 +7,7 @@ from .models import Distrito
 from .models import Institucion
 from .models import Falta, Tardanza
 from .models import Personal
+from .models import Maquina
 
 
 class UgelForm(forms.ModelForm):
@@ -278,4 +279,26 @@ class PersonalForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError("El DNI ingresado ya pertenece a otro personal.")
         return dni
-    
+
+class MaquinaForm(forms.ModelForm):
+    institucion = forms.ModelChoiceField(
+        queryset=Institucion.objects.all(),
+        empty_label="-- Seleccione una Institución --",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'style': 'width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #CCC;'
+        }),
+        label="Institución Educativa"
+    )
+
+    class Meta:
+        model = Maquina
+        fields = ['serie_dispositivo', 'institucion']
+        widgets = {
+            'serie_dispositivo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',  # Se deshabilita para evitar edición manual y capturar la real
+                'style': 'background-color: #E9ECEF; font-weight: bold; padding: 10px; border-radius: 6px; border: 1px solid #CCC;'
+            })
+        }
+

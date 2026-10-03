@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head %}
+    <!-- Carga del archivo estático reútilizable para huellas -->
+    <link rel="stylesheet" href="{% static 'css/recuadro_huella.css' %}">
+{% endblock %}
+
 {% block content %}
 <div style="max-width: 900px; margin: 30px auto; background: #ffffff; padding: 30px 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
     
@@ -10,13 +15,17 @@
         </h2>
     </div>
 
-    <form method="POST" id="form-personal">
+    <!-- Alerta cuando faltan huellas -->
+    <div id="alerta-huella" style="display: none; background-color: #f8d7da; color: #721c24; padding: 12px 20px; border-radius: 6px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-weight: 600; text-align: center;">
+        ⚠️ Debe realizar la captura de la Huella Índice y la Huella Pulgar antes de guardar el registro.
+    </div>
+
+    <form method="POST" id="form-personal" onsubmit="return validarRegistro(event)">
         {% csrf_token %}
         
-        <!-- Rejilla en 2 Columnas -->
+        <!-- Rejilla de Datos del Personal -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
             
-            <!-- Cód. Modular -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Código Modular *</label>
                 {{ form.cod_modular }}
@@ -26,7 +35,6 @@
                 {% endif %}
             </div>
 
-            <!-- DNI -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">DNI *</label>
                 {{ form.dni }}
@@ -36,67 +44,56 @@
                 {% endif %}
             </div>
 
-            <!-- Apellidos -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Apellidos *</label>
                 {{ form.apellidos }}
             </div>
 
-            <!-- Nombres -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Nombres *</label>
                 {{ form.nombres }}
             </div>
 
-            <!-- Cargo -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Cargo *</label>
                 {{ form.cargo }}
             </div>
 
-            <!-- Institución -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Institución Educativa *</label>
                 {{ form.institucion }}
             </div>
 
-            <!-- Distrito -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Distrito *</label>
                 {{ form.distrito }}
             </div>
 
-            <!-- Nivel Educativo -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Nivel Educativo *</label>
                 {{ form.nivel }}
             </div>
 
-            <!-- Turno -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Turno *</label>
                 {{ form.turno }}
             </div>
 
-            <!-- Día de Descanso -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Día de Descanso (Opcional)</label>
                 {{ form.dia_descanso }}
             </div>
 
-            <!-- Hora Entrada -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Hora de Entrada *</label>
                 {{ form.h_entrada }}
             </div>
 
-            <!-- Hora Salida -->
             <div>
                 <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">Hora de Salida *</label>
                 {{ form.h_salida }}
             </div>
 
-            <!-- Condición / Estado -->
             <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
                 {{ form.condicion }}
                 <label for="{{ form.condicion.id_for_label }}" style="font-weight: 600; color: #2c3e50; cursor: pointer; margin: 0;">
@@ -106,54 +103,67 @@
 
         </div>
 
-        <!-- SECCIÓN CAPTURA BIOMÉTRICA (TABLET) -->
-        <div style="background: #F8F9FA; padding: 20px; border-radius: 8px; border: 1px solid #E0E0E0; margin-bottom: 25px;">
-            <h4 style="margin-top: 0; color: #1F4E78; font-size: 1.1rem; border-bottom: 1px solid #DDD; padding-bottom: 8px;">
-                Capacidad Biométrica (Registro de Huellas)
-            </h4>
+        <!-- MÓDULO DE CAPTURA BIOMÉTRICA -->
+        <div style="background: #F8F9FA; padding: 25px; border-radius: 10px; border: 1px solid #E0E0E0; margin-bottom: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #DDD; padding-bottom: 10px; margin-bottom: 18px;">
+                <h4 style="margin: 0; color: #1F4E78; font-size: 1.1rem; font-weight: bold;">
+                    📷 Captura Biométrica en Tablet
+                </h4>
+                <span style="font-size: 0.85rem; color: #e74c3c; font-weight: 600;">* Capturas obligatorias</span>
+            </div>
 
             {{ form.huella_indice }}
             {{ form.huella_pulgar }}
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; margin-top: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 
                 <!-- Recuadro Huella Índice -->
-                <div style="border: 2px dashed #1F4E78; padding: 20px; border-radius: 8px; background: #FFF;">
-                    <div style="font-size: 2.2rem; margin-bottom: 5px;">☝️</div>
-                    <strong style="display: block; color: #2C3E50;">Dedo Índice</strong>
-                    <span id="st-indice" style="display: block; font-size: 0.85rem; color: #7F8C8D; margin: 8px 0;">
-                        {% if form.huella_indice.value %}✓ Huella capturada{% else %}No registrada{% endif %}
-                    </span>
-                    <button type="button" onclick="capturarHuella('indice')" 
-                            style="padding: 8px 16px; background: #1F4E78; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                        Capturar Índice
+                <div id="box-indice" class="box-huella {% if form.huella_indice.value %}capturada{% endif %}">
+                    <div style="font-size: 3.2rem; margin-bottom: 10px;">☝️</div>
+                    <strong style="display: block; color: #2C3E50; font-size: 1.05rem;">Dedo Índice</strong>
+                    
+                    <div id="st-indice" class="st-pendiente {% if form.huella_indice.value %}st-capturada{% endif %}">
+                        {% if form.huella_indice.value %}
+                            ✓ Huella capturada correctamente
+                        {% else %}
+                            ❌ Pendiente de lectura
+                        {% endif %}
+                    </div>
+
+                    <button type="button" onclick="abrirLector('indice')" class="btn-apoyar-dedo">
+                        Apoyar Dedo Índice
                     </button>
                 </div>
 
                 <!-- Recuadro Huella Pulgar -->
-                <div style="border: 2px dashed #1F4E78; padding: 20px; border-radius: 8px; background: #FFF;">
-                    <div style="font-size: 2.2rem; margin-bottom: 5px;">👍</div>
-                    <strong style="display: block; color: #2C3E50;">Dedo Pulgar</strong>
-                    <span id="st-pulgar" style="display: block; font-size: 0.85rem; color: #7F8C8D; margin: 8px 0;">
-                        {% if form.huella_pulgar.value %}✓ Huella capturada{% else %}No registrada{% endif %}
-                    </span>
-                    <button type="button" onclick="capturarHuella('pulgar')" 
-                            style="padding: 8px 16px; background: #1F4E78; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                        Capturar Pulgar
+                <div id="box-pulgar" class="box-huella {% if form.huella_pulgar.value %}capturada{% endif %}">
+                    <div style="font-size: 3.2rem; margin-bottom: 10px;">👍</div>
+                    <strong style="display: block; color: #2C3E50; font-size: 1.05rem;">Dedo Pulgar</strong>
+                    
+                    <div id="st-pulgar" class="st-pendiente {% if form.huella_pulgar.value %}st-capturada{% endif %}">
+                        {% if form.huella_pulgar.value %}
+                            ✓ Huella capturada correctamente
+                        {% else %}
+                            ❌ Pendiente de lectura
+                        {% endif %}
+                    </div>
+
+                    <button type="button" onclick="abrirLector('pulgar')" class="btn-apoyar-dedo">
+                        Apoyar Dedo Pulgar
                     </button>
                 </div>
 
             </div>
         </div>
 
-        <!-- Botones Centrados -->
+        <!-- Botones Principales -->
         <div style="display: flex; justify-content: center; gap: 15px; border-top: 1px solid #E0E0E0; padding-top: 25px;">
             <a href="{% url 'personal_listar' %}" 
-               style="padding: 10px 24px; background-color: #6C757D; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 600;">
+               style="padding: 11px 26px; background-color: #6C757D; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Cancelar
             </a>
             <button type="submit" id="btn-guardar"
-                    style="padding: 10px 28px; background-color: #1F4E78; color: #FFF; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    style="padding: 11px 32px; background-color: #1F4E78; color: #FFF; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                 Guardar Personal
             </button>
         </div>
@@ -161,17 +171,107 @@
     </form>
 </div>
 
-<!-- Modal para Simulación / Lectura de Tablet -->
-<div id="modal-biometrico" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
-    <div style="background: #FFF; padding: 30px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
-        <h3 id="modal-titulo" style="margin-top: 0; color: #1F4E78;">Apoye el dedo</h3>
-        <p style="color: #555; font-size: 0.9rem;">Coloque firmemente el dedo sobre el lector de la tablet.</p>
-        <div style="font-size: 4rem; margin: 15px 0;" id="modal-icono">👆</div>
-        <div id="modal-status" style="font-weight: bold; color: #E67E22;">Esperando lectura...</div>
+<!-- Modal Visual del Lector Biométrico / Tablet -->
+<div id="modal-biometrico" class="modal-biometrico-overlay">
+    <div class="modal-biometrico-card">
+        <h3 id="modal-titulo" style="margin-top: 0; color: #1F4E78; font-size: 1.3rem;">Escáner de Huella</h3>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Apoye firmemente el dedo en la zona de lectura dentro de la pantalla.</p>
+        
+        <!-- Recuadro Táctil de Apoyo -->
+        <div id="zona-touch" onclick="ejecutarCaptura()" class="zona-touch-tablet">
+            <div id="modal-icono" style="font-size: 4.5rem; margin-bottom: 10px;">☝️</div>
+            <span style="font-weight: bold; color: #1F4E78; display: block;" id="txt-instruccion">👉 Toque aquí para colocar el dedo</span>
+        </div>
+
+        <div id="modal-status" style="font-weight: bold; color: #E67E22; margin-bottom: 15px; min-height: 22px;">Esperando contacto del dedo...</div>
+
+        <button type="button" onclick="cerrarModal()" style="padding: 8px 20px; background: #6C757D; color: #FFF; border: none; border-radius: 5px; cursor: pointer;">
+            Cancelar Lectura
+        </button>
     </div>
 </div>
 
 <script>
+let tipoActual = '';
+
+function abrirLector(tipo) {
+    tipoActual = tipo;
+    const modal = document.getElementById('modal-biometrico');
+    const titulo = document.getElementById('modal-titulo');
+    const icono = document.getElementById('modal-icono');
+    const status = document.getElementById('modal-status');
+    const txtInstruccion = document.getElementById('txt-instruccion');
+    
+    titulo.textContent = tipo === 'indice' ? 'Lectura: Dedo Índice' : 'Lectura: Dedo Pulgar';
+    icono.textContent = tipo === 'indice' ? '☝️' : '👍';
+    status.textContent = 'Esperando contacto del dedo...';
+    status.style.color = '#E67E22';
+    txtInstruccion.textContent = '👉 Toque la pantalla para apoyar el dedo';
+    
+    modal.style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modal-biometrico').style.display = 'none';
+}
+
+function ejecutarCaptura() {
+    const status = document.getElementById('modal-status');
+    const txtInstruccion = document.getElementById('txt-instruccion');
+    
+    txtInstruccion.textContent = '⏳ Procesando huella...';
+    status.textContent = 'Leyendo código biométrico...';
+    status.style.color = '#2980B9';
+
+    setTimeout(() => {
+        const hashHuella = "BIO_" + tipoActual.toUpperCase() + "_" + Math.random().toString(36).substring(2, 12);
+        
+        document.getElementById('id_huella_' + tipoActual).value = hashHuella;
+        
+        const box = document.getElementById('box-' + tipoActual);
+        const st = document.getElementById('st-' + tipoActual);
+        
+        box.classList.add('capturada');
+        st.classList.add('st-capturada');
+        st.textContent = '✓ Huella capturada correctamente';
+        
+        status.textContent = '¡Lectura completada!';
+        status.style.color = '#27AE60';
+
+        validarEstadoHuellas();
+
+        setTimeout(() => {
+            cerrarModal();
+        }, 700);
+    }, 1500);
+}
+
+function validarEstadoHuellas() {
+    const hIndice = document.getElementById('id_huella_indice').value;
+    const hPulgar = document.getElementById('id_huella_pulgar').value;
+    const alerta = document.getElementById('alerta-huella');
+
+    if (hIndice && hPulgar) {
+        alerta.style.display = 'none';
+        return true;
+    }
+    return false;
+}
+
+function validarRegistro(event) {
+    const hIndice = document.getElementById('id_huella_indice').value;
+    const hPulgar = document.getElementById('id_huella_pulgar').value;
+    const alerta = document.getElementById('alerta-huella');
+
+    if (!hIndice || !hPulgar) {
+        event.preventDefault();
+        alerta.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return false;
+    }
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const personaId = "{{ persona.id|default:'' }}";
     const btnGuardar = document.getElementById('btn-guardar');
@@ -210,32 +310,5 @@ document.addEventListener('DOMContentLoaded', function() {
     validarCampoUnico('id_cod_modular', 'msg-cod_modular', 'cod_modular');
     validarCampoUnico('id_dni', 'msg-dni', 'dni');
 });
-
-function capturarHuella(tipo) {
-    const modal = document.getElementById('modal-biometrico');
-    const titulo = document.getElementById('modal-titulo');
-    const icono = document.getElementById('modal-icono');
-    const status = document.getElementById('modal-status');
-    
-    titulo.textContent = tipo === 'indice' ? 'Apoye el Dedo Índice' : 'Apoye el Dedo Pulgar';
-    icono.textContent = tipo === 'indice' ? '☝️' : '👍';
-    status.textContent = 'Leyendo huella digital...';
-    modal.style.display = 'flex';
-
-    setTimeout(() => {
-        const hashHuella = "BIO_" + tipo.toUpperCase() + "_" + Math.random().toString(36).substring(2, 12);
-        
-        document.getElementById('id_huella_' + tipo).value = hashHuella;
-        document.getElementById('st-' + tipo).textContent = "✓ Huella capturada";
-        document.getElementById('st-' + tipo).style.color = "#27AE60";
-        
-        status.textContent = "¡Lectura Exitosa!";
-        status.style.color = "#27AE60";
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 800);
-    }, 1800);
-}
 </script>
 {% endblock %}

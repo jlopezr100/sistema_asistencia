@@ -113,4 +113,30 @@ class Tardanza(models.Model):
 
     def __str__(self):
         return self.tipo_tardanza
+
+
+class Institucion(models.Model):
+    codigo_modular = models.CharField(max_length=12, unique=True, verbose_name="Código Modular")
+    nombre = models.CharField(max_length=150, verbose_name="Nombre de la Institución")
+    direccion = models.CharField(max_length=255, verbose_name="Dirección")
+    tolerancia = models.IntegerField(default=15, help_text="Tolerancia en minutos", verbose_name="Tolerancia (Min)")
+    
+    # Claves Foráneas para Combos
+    turno = models.ForeignKey('Turno', on_delete=models.PROTECT, related_name='instituciones', verbose_name="Turno")
+    distrito = models.ForeignKey('Distrito', on_delete=models.PROTECT, related_name='instituciones', verbose_name="Distrito")
+    
+    # Coordenadas numéricas exactas
+    latitud = models.DecimalField(max_digits=10, decimal_places=8, verbose_name="Latitud")
+    longitud = models.DecimalField(max_digits=11, decimal_places=8, verbose_name="Longitud")
+    
+    estado = models.BooleanField(default=True, verbose_name="Estado")
+
+    class Meta:
+        db_table = 'instituciones'
+        verbose_name = 'Institución'
+        verbose_name_plural = 'Instituciones'
+        ordering = ['-id']
+
+    def __str__(self):
+        return f"{self.codigo_modular} - {self.nombre}"
     

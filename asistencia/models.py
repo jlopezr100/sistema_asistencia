@@ -155,11 +155,11 @@ class Personal(models.Model):
     apellidos = models.CharField(max_length=50, verbose_name="Apellidos")
     nombres = models.CharField(max_length=50, verbose_name="Nombres")
     
-    # Captura biométrica
-    huella_indice = models.TextField(unique=True, null=True, blank=True, verbose_name="Huella Índice")
-    huella_pulgar = models.TextField(unique=True, null=True, blank=True, verbose_name="Huella Pulgar")
+    # Huellas como CharField para permitir unique=True en MySQL
+    huella_indice = models.CharField(max_length=255, unique=True, null=True, blank=True, verbose_name="Huella Índice")
+    huella_pulgar = models.CharField(max_length=255, unique=True, null=True, blank=True, verbose_name="Huella Pulgar")
     
-    # Horarios de jornada
+    # Horarios
     h_entrada = models.TimeField(verbose_name="Hora de Entrada")
     h_salida = models.TimeField(verbose_name="Hora de Salida")
     
@@ -172,7 +172,7 @@ class Personal(models.Model):
         verbose_name="Día de Descanso"
     )
     
-    # Relaciones con otras tablas
+    # Relaciones
     cargo = models.ForeignKey('Cargo', on_delete=models.PROTECT, verbose_name="Cargo")
     institucion = models.ForeignKey('Institucion', on_delete=models.PROTECT, verbose_name="Institución")
     distrito = models.ForeignKey('Distrito', on_delete=models.PROTECT, verbose_name="Distrito")

@@ -1,15 +1,20 @@
-# asistencia/views/instituciones_views.py
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from django.http import HttpResponse
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import ProtectedError, Q
 from django.db import IntegrityError
-from django.http import HttpResponse
-from django.template.loader import render_to_pdf # O la librería de PDF usada en tu proyecto (xhtml2pdf / reportlab)
-from ..models import Institucion, Ugel
+
+from ..models import Institucion
 from ..forms import InstitucionForm
+
 
 def _filtrar_instituciones(request):
     query = request.GET.get('q', '').strip()
@@ -30,6 +35,7 @@ def _filtrar_instituciones(request):
         
     return instituciones
 
+
 def institucion_listar(request):
     instituciones = _filtrar_instituciones(request)
     paginator = Paginator(instituciones, 10)
@@ -48,6 +54,7 @@ def institucion_listar(request):
     }
     return render(request, 'instituciones/listar.html', context)
 
+
 def institucion_crear(request):
     if request.method == 'POST':
         form = InstitucionForm(request.POST)
@@ -63,6 +70,7 @@ def institucion_crear(request):
         'mantenimiento_activo': True,
     }
     return render(request, 'instituciones/crear.html', context)
+
 
 def institucion_editar(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
@@ -82,6 +90,7 @@ def institucion_editar(request, pk):
     }
     return render(request, 'instituciones/form.html', context)
 
+
 def institucion_anular(request, pk):
     if request.method == 'POST':
         institucion = get_object_or_404(Institucion, pk=pk)
@@ -95,6 +104,7 @@ def institucion_anular(request, pk):
             messages.warning(request, f'La institución "{institucion.nombre}" está vinculada. Se cambió su estado a Inactivo.')
     return redirect('institucion_listar')
 
+
 # --- REPORTE EXCEL ---
 def institucion_exportar_excel(request):
     instituciones = _filtrar_instituciones(request)
@@ -103,11 +113,9 @@ def institucion_exportar_excel(request):
     ws = wb.active
     ws.title = "Instituciones"
     
-    # Encabezados
     headers = ['ID', 'CÓDIGO MODULAR', 'NOMBRE DE LA I.E.', 'DISTRITO', 'TURNO', 'ESTADO']
     ws.append(headers)
     
-    # Estilos de Encabezado
     fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
     font = Font(color="FFFFFF", bold=True)
     for cell in ws[1]:
@@ -115,7 +123,6 @@ def institucion_exportar_excel(request):
         cell.font = font
         cell.alignment = Alignment(horizontal="center", vertical="center")
         
-    # Datos
     for inst in instituciones:
         ws.append([
             inst.id,
@@ -131,16 +138,70 @@ def institucion_exportar_excel(request):
     wb.save(response)
     return response
 
-# --- REPORTE PDF ---
-def institucion_reporte_pdf(request):
-    instituciones = _filtrar_instituciones(request)
-    ugel = Ugel.objects.first()
-    
-    context = {
-        'instituciones': instituciones,
-        'ugel': ugel,
-        'titulo': 'REPORTE DE INSTITUCIONES EDUCATIVAS'
-    }
-    # Asegúrate de tener configurada tu función utilitaria render_to_pdf o usar xhtml2pdf
-    return render(request, 'instituciones/reporte_pdf.html', context)
 
+# --- REPORTE PDF CON REPORTLAB ---
+def institucion_reporte_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="reporte_instituciones.pdf"'
+
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=letter,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
+    )
+    elements = []
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=16,
+        leading=20,
+        alignment=1, # Centrado
+        textColor=colors.HexColor('#1F4E78')
+    )
+    
+    elements.append(Paragraph("REPORTE DE INSTITUCIONES EDUCATIVAS", title_style))
+    elements.append(Spacer(1, 15))
+
+    # Encabezados de tabla
+    data = [['ID', 'Cód. Modular', 'Nombre de la I.E.', 'Distrito', 'Turno', 'Estado']]
+
+    instituciones = _filtrar_instituciones(request)
+    
+    cell_style = ParagraphStyle('CellStyle', fontName='Helvetica', fontSize=9, leading=11)
+
+    for inst in instituciones:
+        estado_str = 'ACTIVO' if inst.estado else 'INACTIVO'
+        data.append([
+            str(inst.id),
+            inst.codigo_modular,
+            Paragraph(inst.nombre, cell_style),
+            inst.distrito.nombre if inst.distrito else '',
+            inst.turno.nombre if inst.turno else '',
+            estado_str
+        ])
+
+    # Anchos de columna en puntos (Suma = 550 pt aprox)
+    t = Table(data, colWidths=[30, 75, 185, 100, 90, 70])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F4E78')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ALIGN', (2, 1), (2, -1), 'LEFT'), # Nombre alineado a la izquierda
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F8F9FA')),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CCCCCC')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+
+    elements.append(t)
+    doc.build(elements)
+    
+    return response

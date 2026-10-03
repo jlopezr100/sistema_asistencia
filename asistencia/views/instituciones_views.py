@@ -1,11 +1,34 @@
 # asistencia/views/instituciones_views.py
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 from django.db import IntegrityError
-from ..models import Institucion
+from django.http import HttpResponse
+from django.template.loader import render_to_pdf # O la librería de PDF usada en tu proyecto (xhtml2pdf / reportlab)
+from ..models import Institucion, Ugel
 from ..forms import InstitucionForm
+
+def _filtrar_instituciones(request):
+    query = request.GET.get('q', '').strip()
+    filtro = request.GET.get('filtro', '')
+    instituciones = Institucion.objects.select_related('turno', 'distrito').all().order_by('-id')
+    
+    if query:
+        # Búsqueda por Código Modular, Nombre o Distrito
+        instituciones = instituciones.filter(
+            Q(codigo_modular__icontains=query) |
+            Q(nombre__icontains=query) |
+            Q(distrito__nombre__icontains=query)
+        )
+    if filtro == 'activos':
+        instituciones = instituciones.filter(estado=True)
+    elif filtro == 'inactivos':
+        instituciones = instituciones.filter(estado=False)
+        
+    return instituciones
 
 def institucion_listar(request):
     instituciones = _filtrar_instituciones(request)
@@ -17,8 +40,10 @@ def institucion_listar(request):
         'page_obj': page_obj,
         'titulo_seccion': 'Tabla Instituciones',
         'nombre_singular': 'Institución',
-        'campo_busqueda': 'nombre o código modular',
+        'campo_busqueda': 'código modular, nombre o distrito',
         'url_crear': 'institucion_crear',
+        'url_pdf': 'institucion_pdf',
+        'url_excel': 'institucion_excel',
         'mantenimiento_activo': False,
     }
     return render(request, 'instituciones/listar.html', context)
@@ -70,16 +95,52 @@ def institucion_anular(request, pk):
             messages.warning(request, f'La institución "{institucion.nombre}" está vinculada. Se cambió su estado a Inactivo.')
     return redirect('institucion_listar')
 
-def _filtrar_instituciones(request):
-    query = request.GET.get('q', '')
-    filtro = request.GET.get('filtro', '')
-    instituciones = Institucion.objects.select_related('turno', 'distrito').all().order_by('-id')
+# --- REPORTE EXCEL ---
+def institucion_exportar_excel(request):
+    instituciones = _filtrar_instituciones(request)
     
-    if query:
-        instituciones = instituciones.filter(nombre__icontains=query) | instituciones.filter(codigo_modular__icontains=query)
-    if filtro == 'activos':
-        instituciones = instituciones.filter(estado=True)
-    elif filtro == 'inactivos':
-        instituciones = instituciones.filter(estado=False)
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Instituciones"
+    
+    # Encabezados
+    headers = ['ID', 'CÓDIGO MODULAR', 'NOMBRE DE LA I.E.', 'DISTRITO', 'TURNO', 'ESTADO']
+    ws.append(headers)
+    
+    # Estilos de Encabezado
+    fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+    font = Font(color="FFFFFF", bold=True)
+    for cell in ws[1]:
+        cell.fill = fill
+        cell.font = font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
         
-    return instituciones
+    # Datos
+    for inst in instituciones:
+        ws.append([
+            inst.id,
+            inst.codigo_modular,
+            inst.nombre,
+            inst.distrito.nombre if inst.distrito else '',
+            inst.turno.nombre if inst.turno else '',
+            'ACTIVO' if inst.estado else 'INACTIVO'
+        ])
+        
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Reporte_Instituciones.xlsx"'
+    wb.save(response)
+    return response
+
+# --- REPORTE PDF ---
+def institucion_reporte_pdf(request):
+    instituciones = _filtrar_instituciones(request)
+    ugel = Ugel.objects.first()
+    
+    context = {
+        'instituciones': instituciones,
+        'ugel': ugel,
+        'titulo': 'REPORTE DE INSTITUCIONES EDUCATIVAS'
+    }
+    # Asegúrate de tener configurada tu función utilitaria render_to_pdf o usar xhtml2pdf
+    return render(request, 'instituciones/reporte_pdf.html', context)
+

@@ -54,11 +54,13 @@ urlpatterns = [
     path('tardanzas/pdf/', views.tardanza_reporte_pdf, name='tardanza_pdf'),
     path('tardanzas/excel/', views.tardanza_exportar_excel, name='tardanza_excel'),
 
+    # Instituciones
     path('instituciones/', views.institucion_listar, name='institucion_listar'),
     path('instituciones/crear/', views.institucion_crear, name='institucion_crear'),
     path('instituciones/editar/<int:pk>/', views.institucion_editar, name='institucion_editar'),
     path('instituciones/anular/<int:pk>/', views.institucion_anular, name='institucion_anular'),
-
+    path('instituciones/pdf/', views.institucion_reporte_pdf, name='institucion_pdf'),
+    path('instituciones/excel/', views.institucion_exportar_excel, name='institucion_excel'),
     
     path('nosotros/', views.nosotros, name='nosotros'),
 ]

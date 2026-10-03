@@ -10,4 +10,4 @@ from .falta_views import falta_listar, falta_crear, falta_editar, falta_anular, 
 from .tardanza_views import tardanza_listar, tardanza_crear, tardanza_editar, tardanza_anular, tardanza_reporte_pdf, tardanza_exportar_excel
 
 # Instituciones
-from .instituciones_views import institucion_listar, institucion_crear, institucion_editar, institucion_anular
+from .instituciones_views import institucion_listar, institucion_crear, institucion_editar, institucion_anular, institucion_reporte_pdf,institucion_exportar_excel

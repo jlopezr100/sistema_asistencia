@@ -12,4 +12,7 @@ from .tardanza_views import tardanza_listar, tardanza_crear, tardanza_editar, ta
 # Instituciones
 from .instituciones_views import institucion_listar, institucion_crear, institucion_editar, institucion_anular, institucion_reporte_pdf,institucion_exportar_excel, verificar_codigo_modular
 
-from .personal_views import personal_listar, personal_crear, personal_editar, personal_anular, personal_reporte_pdf, personal_exportar_excel,     verificar_unicidad_personal
+from .personal_views import personal_listar, personal_crear, personal_editar, personal_anular, personal_reporte_pdf, personal_exportar_excel, verificar_unicidad_personal
+
+from .maquinas_views import maquina_listar, maquina_crear, maquina_editar, maquina_eliminar, verificar_unicidad_maquina
+

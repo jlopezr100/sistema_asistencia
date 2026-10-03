@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from .models import Maquina
-from .forms import MaquinaForm
+from asistencia.models import Maquina
+from ..forms import MaquinaForm
 
 # 1. Listado (Apunta a listar.html)
 def maquina_listar(request):

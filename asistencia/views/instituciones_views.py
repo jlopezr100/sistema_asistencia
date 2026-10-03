@@ -4,7 +4,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -15,6 +15,16 @@ from django.db import IntegrityError
 from ..models import Institucion
 from ..forms import InstitucionForm
 
+
+def verificar_codigo_modular(request):
+    codigo = request.GET.get('codigo', '').strip()
+    inst_id = request.GET.get('id', None)
+    
+    exists = Institucion.objects.filter(codigo_modular=codigo)
+    if inst_id and inst_id.isdigit():
+        exists = exists.exclude(id=int(inst_id))
+        
+    return JsonResponse({'existe': exists.exists()})
 
 def _filtrar_instituciones(request):
     query = request.GET.get('q', '').strip()
@@ -67,10 +77,10 @@ def institucion_crear(request):
         
     context = {
         'form': form,
+        'titulo_formulario': 'Registrar Nueva Institución Educativa',
         'mantenimiento_activo': True,
     }
-    return render(request, 'instituciones/crear.html', context)
-
+    return render(request, 'instituciones/form.html', context)
 
 def institucion_editar(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
@@ -85,6 +95,7 @@ def institucion_editar(request, pk):
         
     context = {
         'form': form,
+        'institucion': institucion,
         'titulo_formulario': f'Editar Institución: {institucion.nombre}',
         'mantenimiento_activo': True,
     }

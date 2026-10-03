@@ -2,83 +2,154 @@
 {% load static %}
 
 {% block content %}
-<div class="mantenimiento-container" style="max-width: 750px; margin: 30px auto;">
-    <div class="section-header">
-        <h2>{{ titulo_formulario }}</h2>
+<div style="max-width: 800px; margin: 35px auto; background: #ffffff; padding: 30px 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+    
+    <div style="border-bottom: 2px solid var(--azul-borde, #1F4E78); padding-bottom: 12px; margin-bottom: 25px;">
+        <h2 style="color: var(--azul-oscuro, #1F4E78); margin: 0; font-size: 1.5rem; font-weight: bold;">
+            {{ titulo_formulario }}
+        </h2>
     </div>
 
-    <form method="POST" class="form-crud">
+    <form method="POST" id="form-institucion">
         {% csrf_token %}
         
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px; margin-bottom: 15px;">
+        <!-- Rejilla en 2 Columnas -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            
+            <!-- Código Modular -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
                     Código Modular *
                 </label>
                 {{ form.codigo_modular }}
+                <small id="msg-codigo" style="display: block; margin-top: 4px; font-weight: 600;"></small>
+                {% if form.codigo_modular.errors %}
+                    <span style="color: #e74c3c; font-size: 0.85rem; font-weight: bold;">{{ form.codigo_modular.errors.0 }}</span>
+                {% endif %}
             </div>
+
+            <!-- Nombre de la I.E. -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
                     Nombre de la I.E. *
                 </label>
                 {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <span style="color: #e74c3c; font-size: 0.85rem;">{{ form.nombre.errors.0 }}</span>
+                {% endif %}
             </div>
-        </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
-                Dirección *
-            </label>
-            {{ form.direccion }}
-        </div>
+            <!-- Dirección (Abarca las 2 columnas para mejor lectura) -->
+            <div style="grid-column: span 2;">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
+                    Dirección *
+                </label>
+                {{ form.direccion }}
+            </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <!-- Distrito -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
                     Distrito *
                 </label>
                 {{ form.distrito }}
             </div>
+
+            <!-- Turno -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
                     Turno *
                 </label>
                 {{ form.turno }}
             </div>
+
+            <!-- Tolerancia -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
-                    Tolerancia (Min)
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
+                    Tolerancia (Min) *
                 </label>
                 {{ form.tolerancia }}
             </div>
-        </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <!-- Estado -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 25px;">
+                {{ form.estado }}
+                <label for="{{ form.estado.id_for_label }}" style="font-weight: 600; color: #2c3e50; cursor: pointer; margin: 0;">
+                    Registro Activo
+                </label>
+            </div>
+
+            <!-- Latitud -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
                     Latitud (GPS) *
                 </label>
                 {{ form.latitud }}
             </div>
+
+            <!-- Longitud -->
             <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px; color: #2c3e50;">
                     Longitud (GPS) *
                 </label>
                 {{ form.longitud }}
             </div>
+
         </div>
 
-        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-            {{ form.estado }}
-            <label for="{{ form.estado.id_for_label }}" style="font-weight: bold; color: var(--azul-oscuro); margin: 0; cursor: pointer;">
-                Estado Activo
-            </label>
+        <!-- Botones Centrados -->
+        <div style="display: flex; justify-content: center; gap: 15px; border-top: 1px solid #e0e0e0; padding-top: 25px; margin-top: 10px;">
+            <a href="{% url 'institucion_listar' %}" 
+               style="padding: 10px 24px; background-color: #6c757d; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.2s;">
+                Cancelar
+            </a>
+            <button type="submit" id="btn-guardar"
+                    style="padding: 10px 28px; background-color: #1F4E78; color: #ffffff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                Guardar Institución
+            </button>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--azul-borde); padding-top: 15px;">
-            <a href="{% url 'institucion_listar' %}" class="btn-crud" style="background-color: #6c757d; color: white; text-decoration: none;">Cancelar</a>
-            <button type="submit" class="btn-crud btn-add">Guardar Cambios</button>
-        </div>
     </form>
 </div>
+
+<!-- Script de Validación en Tiempo Real del Código Modular -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputCodigo = document.getElementById('id_codigo_modular');
+    const msgCodigo = document.getElementById('msg-codigo');
+    const btnGuardar = document.getElementById('btn-guardar');
+    const instId = "{{ institucion.id|default:'' }}";
+
+    if (inputCodigo) {
+        inputCodigo.addEventListener('input', function() {
+            const codigo = this.value.trim();
+            
+            if (codigo.length < 3) {
+                msgCodigo.textContent = '';
+                btnGuardar.disabled = false;
+                return;
+            }
+
+            fetch(`{% url 'verificar_codigo_modular' %}?codigo=${encodeURIComponent(codigo)}&id=${instId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        msgCodigo.style.color = '#e74c3c';
+                        msgCodigo.textContent = '❌ El Código Modular ya existe.';
+                        btnGuardar.disabled = true;
+                        btnGuardar.style.opacity = '0.5';
+                        btnGuardar.style.cursor = 'not-allowed';
+                    } else {
+                        msgCodigo.style.color = '#27ae60';
+                        msgCodigo.textContent = '✓ Código Modular disponible.';
+                        btnGuardar.disabled = false;
+                        btnGuardar.style.opacity = '1';
+                        btnGuardar.style.cursor = 'pointer';
+                    }
+                })
+                .catch(err => console.error('Error al validar código:', err));
+        });
+    }
+});
+</script>
 {% endblock %}

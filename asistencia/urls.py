@@ -61,6 +61,9 @@ urlpatterns = [
     path('instituciones/anular/<int:pk>/', views.institucion_anular, name='institucion_anular'),
     path('instituciones/pdf/', views.institucion_reporte_pdf, name='institucion_pdf'),
     path('instituciones/excel/', views.institucion_exportar_excel, name='institucion_excel'),
+
+    # En asistencia/urls.py
+    path('instituciones/validar-codigo/', views.verificar_codigo_modular, name='verificar_codigo_modular'),
     
     path('nosotros/', views.nosotros, name='nosotros'),
 ]

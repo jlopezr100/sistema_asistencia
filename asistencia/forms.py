@@ -7,6 +7,7 @@ from .models import Distrito
 from .models import Institucion
 from .models import Falta, Tardanza
 
+
 class UgelForm(forms.ModelForm):
     class Meta:
         model = Ugel
@@ -186,15 +187,17 @@ class TardanzaForm(forms.ModelForm):
         return tipo_tardanza
 
 # asistencia/forms.py
-from django import forms
-from .models import Institucion, Turno, Distrito
-
 class InstitucionForm(forms.ModelForm):
     class Meta:
         model = Institucion
         fields = ['codigo_modular', 'nombre', 'direccion', 'tolerancia', 'turno', 'distrito', 'latitud', 'longitud', 'estado']
         widgets = {
-            'codigo_modular': forms.TextInput(attrs={'class': 'form-input-search', 'maxlength': '12', 'placeholder': 'Ej. 1234567'}),
+            'codigo_modular': forms.TextInput(attrs={
+                'class': 'form-input-search', 
+                'maxlength': '12', 
+                'placeholder': 'Ej. 1234567',
+                'id': 'id_codigo_modular'
+            }),
             'nombre': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombre de la I.E.'}),
             'direccion': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Dirección completa'}),
             'tolerancia': forms.NumberInput(attrs={'class': 'form-input-search', 'min': '0'}),
@@ -202,12 +205,22 @@ class InstitucionForm(forms.ModelForm):
             'distrito': forms.Select(attrs={'class': 'form-select'}),
             'latitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-9.12345678'}),
             'longitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-77.12345678'}),
-            'estado': forms.CheckboxInput(attrs={'style': 'transform: scale(1.2); cursor: pointer;'}),
+            'estado': forms.CheckboxInput(attrs={'style': 'transform: scale(1.3); cursor: pointer;'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filtrar combos únicamente con turnos y distritos activos
         self.fields['turno'].queryset = Turno.objects.filter(estado=True)
         self.fields['distrito'].queryset = Distrito.objects.filter(estado=True)
 
+    def clean_codigo_modular(self):
+        codigo = self.cleaned_data.get('codigo_modular')
+        # Verificar si existe otro registro con el mismo código modular
+        queryset = Institucion.objects.filter(codigo_modular=codigo)
+        if self.instance and self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+            
+        if queryset.exists():
+            raise forms.ValidationError("El Código Modular ya se encuentra registrado.")
+        return codigo
+    

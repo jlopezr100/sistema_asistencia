@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.contrib import messages
 from asistencia.models import Maquina
 from ..forms import MaquinaForm
 
@@ -44,10 +45,15 @@ def maquina_editar(request, pk):
 # 4. Eliminar
 def maquina_eliminar(request, pk):
     maquina = get_object_or_404(Maquina, pk=pk)
+    
     if request.method == 'POST':
+        serie = maquina.serie_dispositivo
         maquina.delete()
+        messages.success(request, f'La máquina con serie "{serie}" fue eliminada correctamente.')
         return redirect('maquina_listar')
-    return render(request, 'maquina/eliminar.html', {'maquina': maquina})
+    
+    # Redirección directa por si se intenta acceder manualmente desde el navegador
+    return redirect('maquina_listar')
 
 # 5. Validación AJAX
 def verificar_unicidad_maquina(request):

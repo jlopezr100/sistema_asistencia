@@ -9,13 +9,12 @@
         <h2 style="color: var(--azul-oscuro); margin: 0; font-weight: bold; font-size: 1.35rem;">
             🖥️ Gestión de Máquinas / Dispositivos
         </h2>
-        <!-- BOTÓN DE REGISTRO EN AZUL INSTITUCIONAL (SIN VERDE) -->
         <a href="{% url 'maquina_crear' %}" class="btn-crud btn-add">
             + Registrar Máquina
         </a>
     </div>
 
-    <!-- TABLA ESTANDARIZADA CON CLASES GLOBALES -->
+    <!-- TABLA DE REGISTROS -->
     <table class="tabla-mantenimiento" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr>
@@ -37,18 +36,17 @@
                 <td>{{ m.fecha_registro|date:"d/m/Y H:i" }}</td>
                 <td style="text-align: center;">
                     <div style="display: flex; justify-content: center; gap: 10px; align-items: center;">
-                        <!-- ENLACE EDITAR (AZUL) -->
-                        <a href="{% url 'maquina_editar' m.id %}" class="btn-action-edit" title="Editar Machine">
+                        <a href="{% url 'maquina_editar' m.id %}" class="btn-action-edit">
                             Editar
                         </a>
                         
-                        <!-- BOTÓN ELIMINAR / ANULAR (ROJO) -->
+                        <!-- BOTÓN QUE ACTIVA EL MODAL ANULAR -->
                         <button type="button" 
                                 class="btn-action-delete" 
                                 data-url="{% url 'maquina_eliminar' m.id %}" 
                                 data-nombre="{{ m.serie_dispositivo }}" 
                                 onclick="abrirModalAnularConData(this)"
-                                style="background: none; border: none; cursor: pointer; padding: 0;">
+                                style="background: none; border: none; cursor: pointer;">
                             Eliminar
                         </button>
                     </div>
@@ -64,4 +62,47 @@
         </tbody>
     </table>
 </div>
+
+<!-- INCLUSIÓN DEL MODAL REUTILIZABLE -->
+{% include 'includes/modal_anular.html' %}
+
+<script>
+function abrirModalAnularConData(btn) {
+    const url = btn.getAttribute('data-url');
+    const nombre = btn.getAttribute('data-nombre');
+    
+    // Asigna el action al formulario dentro del modal
+    const formEliminar = document.getElementById('form-eliminar');
+    if (formEliminar) {
+        formEliminar.action = url;
+    }
+    
+    // Muestra la serie o identificador del equipo en la pregunta
+    const tituloRegistro = document.getElementById('modal-registro-titulo');
+    if (tituloRegistro) {
+        tituloRegistro.textContent = nombre;
+    }
+    
+    // Abre el elemento <dialog>
+    const modal = document.getElementById('modal-confirmacion');
+    if (modal) {
+        if (typeof modal.showModal === "function") {
+            modal.showModal();
+        } else {
+            modal.style.display = 'block';
+        }
+    }
+}
+
+function cerrarModalGlobal() {
+    const modal = document.getElementById('modal-confirmacion');
+    if (modal) {
+        if (typeof modal.close === "function") {
+            modal.close();
+        } else {
+            modal.style.display = 'none';
+        }
+    }
+}
+</script>
 {% endblock %}

@@ -51,7 +51,7 @@ def personal_listar(request):
         'url_crear': 'personal_crear',
         'url_pdf': 'personal_pdf',
         'url_excel': 'personal_excel',
-        'mantenimiento_activo': False,
+        'mantenimiento_activo': True,  # <-- CAMBIAR A True
     }
     return render(request, 'personal/listar.html', context)
 

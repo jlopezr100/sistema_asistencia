@@ -60,7 +60,7 @@ def institucion_listar(request):
         'url_crear': 'institucion_crear',
         'url_pdf': 'institucion_pdf',
         'url_excel': 'institucion_excel',
-        'mantenimiento_activo': False,
+        'mantenimiento_activo': True,  # <-- CAMBIAR A True
     }
     return render(request, 'instituciones/listar.html', context)
 

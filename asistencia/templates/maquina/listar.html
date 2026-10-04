@@ -1,36 +1,57 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 30px auto; background: #FFFFFF; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+<div class="mantenimiento-container" style="max-width: 950px; margin: 30px auto;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1F4E78; padding-bottom: 15px; margin-bottom: 20px;">
-        <h2 style="color: #1F4E78; margin: 0; font-weight: bold;">🖥️ Gestión de Máquinas / Dispositivos</h2>
-        <a href="{% url 'maquina_crear' %}" 
-           style="padding: 10px 20px; background-color: #27AE60; color: #FFF; text-decoration: none; border-radius: 6px; font-weight: 600;">
+    <!-- ENCABEZADO PRINCIPAL DE LA TABLA -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--azul-borde); padding-bottom: 12px; margin-bottom: 20px;">
+        <h2 style="color: var(--azul-oscuro); margin: 0; font-weight: bold; font-size: 1.35rem;">
+            🖥️ Gestión de Máquinas / Dispositivos
+        </h2>
+        <!-- BOTÓN DE REGISTRO EN AZUL INSTITUCIONAL (SIN VERDE) -->
+        <a href="{% url 'maquina_crear' %}" class="btn-crud btn-add">
             + Registrar Máquina
         </a>
     </div>
 
-    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+    <!-- TABLA ESTANDARIZADA CON CLASES GLOBALES -->
+    <table class="tabla-mantenimiento" style="width: 100%; border-collapse: collapse;">
         <thead>
-            <tr style="background-color: #1F4E78; color: white; text-align: left;">
-                <th style="padding: 12px;">ID</th>
-                <th style="padding: 12px;">Serie Dispositivo</th>
-                <th style="padding: 12px;">Institución Educativa</th>
-                <th style="padding: 12px;">Fecha Registro</th>
-                <th style="padding: 12px; text-align: center;">Acciones</th>
+            <tr>
+                <th style="width: 8%; text-align: center;">ID</th>
+                <th style="width: 32%;">Serie Dispositivo</th>
+                <th style="width: 35%;">Institución Educativa</th>
+                <th style="width: 15%;">Fecha Registro</th>
+                <th style="width: 10%; text-align: center;">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for m in maquinas %}
-            <tr style="border-bottom: 1px solid #DDD;">
-                <td style="padding: 12px; font-weight: bold;">{{ m.id }}</td>
-                <td style="padding: 12px; font-family: monospace; font-size: 0.95rem;">{{ m.serie_dispositivo }}</td>
-                <td style="padding: 12px;">{{ m.institucion.nombre }}</td>
-                <td style="padding: 12px;">{{ m.fecha_registro|date:"d/m/Y H:i" }}</td>
-                <td style="padding: 12px; text-align: center;">
-                    <a href="{% url 'maquina_editar' m.id %}" style="color: #2980B9; font-weight: 600; margin-right: 12px; text-decoration: none;">Editar</a>
-                    <a href="{% url 'maquina_eliminar' m.id %}" style="color: #E74C3C; font-weight: 600; text-decoration: none;">Eliminar</a>
+            <tr>
+                <td style="text-align: center; font-weight: bold;">{{ m.id }}</td>
+                <td style="font-family: monospace; font-size: 0.95rem; font-weight: 600; color: var(--azul-oscuro);">
+                    {{ m.serie_dispositivo }}
+                </td>
+                <td>{{ m.institucion.nombre }}</td>
+                <td>{{ m.fecha_registro|date:"d/m/Y H:i" }}</td>
+                <td style="text-align: center;">
+                    <div style="display: flex; justify-content: center; gap: 10px; align-items: center;">
+                        <!-- ENLACE EDITAR (AZUL) -->
+                        <a href="{% url 'maquina_editar' m.id %}" class="btn-action-edit" title="Editar Machine">
+                            Editar
+                        </a>
+                        
+                        <!-- BOTÓN ELIMINAR / ANULAR (ROJO) -->
+                        <button type="button" 
+                                class="btn-action-delete" 
+                                data-url="{% url 'maquina_eliminar' m.id %}" 
+                                data-nombre="{{ m.serie_dispositivo }}" 
+                                onclick="abrirModalAnularConData(this)"
+                                style="background: none; border: none; cursor: pointer; padding: 0;">
+                            Eliminar
+                        </button>
+                    </div>
                 </td>
             </tr>
             {% empty %}

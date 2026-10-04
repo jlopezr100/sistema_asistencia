@@ -20,10 +20,10 @@ def maquina_crear(request):
     
     return render(request, 'maquina/form.html', {
         'form': form,
-        'titulo_formulario': 'Registrar Nueva Máquina'
+        'titulo_formulario': 'Registrar Nueva Máquina',
+        'mantenimiento_activo': True  # <-- Habilita el bloqueo del menú
     })
 
-# 3. Editar (Usa el mismo form.html)
 def maquina_editar(request, pk):
     maquina = get_object_or_404(Maquina, pk=pk)
     if request.method == 'POST':
@@ -37,7 +37,8 @@ def maquina_editar(request, pk):
     return render(request, 'maquina/form.html', {
         'form': form,
         'maquina': maquina,
-        'titulo_formulario': 'Editar Máquina'
+        'titulo_formulario': f'Editar Máquina: {maquina.serie_dispositivo}',
+        'mantenimiento_activo': True  # <-- Habilita el bloqueo del menú
     })
 
 # 4. Eliminar

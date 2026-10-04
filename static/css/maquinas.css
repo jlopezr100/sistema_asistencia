@@ -1,0 +1,89 @@
+/* ==========================================
+   ESTILOS ESPECÍFICOS PARA MÓDULO MÁQUINAS
+   ========================================== */
+
+/* Elevación y sombra al pasar el mouse por las filas */
+.tabla-mantenimiento tbody tr {
+    transition: all 0.2s ease-in-out;
+}
+
+.tabla-mantenimiento tbody tr:hover {
+    background-color: #f8fafc !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* Campos de filtros y búsqueda */
+.select-filtro, 
+.input-busqueda {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: #334155;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.select-filtro:focus, 
+.input-busqueda:focus {
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1);
+}
+
+/* Botones de Exportación (PDF / Excel) */
+.btn-export {
+    background-color: #3b4d61;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.btn-export:hover {
+    background-color: #2c3b4d;
+    color: #ffffff;
+}
+
+/* Botón de Submit Buscar */
+.btn-buscar-submit {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-buscar-submit:hover {
+    background-color: #172554;
+}
+
+/* Contenedores flex de la barra superior */
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}

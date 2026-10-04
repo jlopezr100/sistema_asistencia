@@ -2,26 +2,59 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- Carga del estándar global de estilos -->
+    <!-- Estilos globales y específicos del módulo -->
     <link rel="stylesheet" href="{% static 'css/tabla_mantenimiento.css' %}">
+    <link rel="stylesheet" href="{% static 'css/maquinas.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="mantenimiento-container">
 
-    <!-- CABECERA DE ACCIONES Y BOTÓN SALIR ALINEADO A LA DERECHA -->
-    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
-        <div>
-            <a href="{% url 'maquina_crear' %}" class="btn-crud btn-add">
-                + Agregar Máquina
-            </a>
+    <!-- BARRA SUPERIOR DE FILTROS, EXPORTACIÓN Y BÚSQUEDA -->
+    <form method="GET" action="{% url 'maquina_listar' %}" id="form-filtros">
+        <div class="toolbar-container">
+            
+            <!-- Acciones Izquierda -->
+            <div class="toolbar-group">
+                <a href="{% url 'maquina_crear' %}" class="btn-crud btn-add">
+                    + Agregar Máquina
+                </a>
+                <a href="{% url 'maquina_exportar_pdf' %}?q={{ query|default:'' }}" class="btn-export" target="_blank">
+                    Imprime PDF
+                </a>
+                <a href="{% url 'maquina_exportar_excel' %}?q={{ query|default:'' }}" class="btn-export">
+                    Descarga Excel
+                </a>
+            </div>
+
+            <!-- Filtros Búsqueda Derecha -->
+            <div class="toolbar-group">
+                <select name="institucion_id" class="select-filtro" onchange="document.getElementById('form-filtros').submit();">
+                    <option value="">-- Todos --</option>
+                    {% for inst in instituciones %}
+                        <option value="{{ inst.id }}" {% if request.GET.institucion_id == inst.id|stringformat:"i" %}selected{% endif %}>
+                            {{ inst.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" 
+                       name="q" 
+                       value="{{ query|default:'' }}" 
+                       placeholder="Buscar por serie o I.E..." 
+                       class="input-busqueda" 
+                       style="width: 230px;">
+
+                <button type="submit" class="btn-buscar-submit">
+                    Buscar
+                </button>
+
+                <a href="{% url 'inicio' %}" class="btn-crud btn-cancel" style="background-color: #d9534f; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px;">
+                    Salir
+                </a>
+            </div>
         </div>
-        <div>
-            <a href="{% url 'inicio' %}" class="btn-crud btn-cancel" style="background-color: #d9534f; color: white; text-decoration: none;">
-                Salir
-            </a>
-        </div>
-    </div>
+    </form>
 
     <!-- TÍTULO DE LA TABLA -->
     <div style="border-bottom: 2px solid var(--azul-borde, #003366); padding-bottom: 8px; margin-bottom: 20px;">
@@ -30,7 +63,7 @@
         </h2>
     </div>
 
-    <!-- TABLA CON ANCHOS Y DISTRIBUCIÓN EXACTA -->
+    <!-- TABLA DE REGISTROS -->
     <table class="tabla-mantenimiento" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f1f5f9;">
@@ -68,7 +101,7 @@
             {% empty %}
             <tr>
                 <td colspan="4" style="text-align: center; padding: 25px; color: #64748b;">
-                    No hay máquinas registradas en el sistema.
+                    No se encontraron registros de máquinas.
                 </td>
             </tr>
             {% endfor %}
@@ -76,43 +109,10 @@
     </table>
 </div>
 
-<!-- INCLUSIÓN DEL MODAL REUTILIZABLE DE ANULACIÓN -->
+<!-- MODAL REUTILIZABLE -->
 {% include 'includes/modal_anular.html' %}
 
-<script>
-function abrirModalAnularConData(btn) {
-    const url = btn.getAttribute('data-url');
-    const nombre = btn.getAttribute('data-nombre');
-    
-    const formEliminar = document.getElementById('form-eliminar');
-    if (formEliminar) {
-        formEliminar.action = url;
-    }
-    
-    const tituloRegistro = document.getElementById('modal-registro-titulo');
-    if (tituloRegistro) {
-        tituloRegistro.textContent = nombre;
-    }
-    
-    const modal = document.getElementById('modal-confirmacion');
-    if (modal) {
-        if (typeof modal.showModal === "function") {
-            modal.showModal();
-        } else {
-            modal.style.display = 'block';
-        }
-    }
-}
-
-function cerrarModalGlobal() {
-    const modal = document.getElementById('modal-confirmacion');
-    if (modal) {
-        if (typeof modal.close === "function") {
-            modal.close();
-        } else {
-            modal.style.display = 'none';
-        }
-    }
-}
-</script>
+{% block extra_js %}
+    <script src="{% static 'js/maquinas.js' %}"></script>
+{% endblock %}
 {% endblock %}

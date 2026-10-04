@@ -79,6 +79,8 @@ urlpatterns = [
     path('maquinas/editar/<int:pk>/', views.maquina_editar, name='maquina_editar'),
     path('maquinas/eliminar/<int:pk>/', views.maquina_eliminar, name='maquina_eliminar'),
     path('maquinas/verificar-unicidad/', views.verificar_unicidad_maquina, name='verificar_unicidad_maquina'),
+    path('maquinas/exportar/pdf/', views.maquina_exportar_pdf, name='maquina_exportar_pdf'),
+    path('maquinas/exportar/excel/', views.maquina_exportar_excel, name='maquina_exportar_excel'),
     
     path('nosotros/', views.nosotros, name='nosotros'),
 ]

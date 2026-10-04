@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/tabla_mantenimiento.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="mantenimiento-container" style="max-width: 600px; margin: 30px auto;">
+<div class="mantenimiento-container" style="max-width: 600px; margin: 40px auto; background: #FFFFFF; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
     
-    <!-- ENCABEZADO DE MANTENIMIENTO CON BOTÓN SALIR -->
-    <div class="mantenimiento-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--azul-borde); padding-bottom: 12px; margin-bottom: 20px;">
-        <h2 style="color: var(--azul-oscuro); margin: 0; font-size: 1.35rem; font-weight: bold;">
+    <!-- ENCABEZADO CON BOTÓN SALIR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--azul-borde); padding-bottom: 12px; margin-bottom: 25px;">
+        <h2 style="color: var(--azul-oscuro); margin: 0; font-size: 1.4rem; font-weight: bold;">
             {{ titulo_formulario }}
         </h2>
         <a href="{% url 'maquina_listar' %}" class="btn-salir">Salir</a>
     </div>
 
-    <!-- Alerta de Máquina Ya Registrada (Tus controles JS) -->
+    <!-- Alerta de Máquina Ya Registrada -->
     <div id="alerta-duplicado" style="display: none; background-color: #f8d7da; color: #721c24; padding: 12px 20px; border-radius: 6px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-weight: 600;">
         ⚠️ Esta máquina/dispositivo ya se encuentra asignada a otra institución. No se puede duplicar.
     </div>
@@ -45,7 +49,7 @@
 
         <!-- Botones de Acción -->
         <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--azul-borde); padding-top: 20px;">
-            <a href="{% url 'maquina_listar' %}" class="btn-crud" style="background-color: #6c757d; color: #FFF; text-decoration: none;">
+            <a href="{% url 'maquina_listar' %}" class="btn-crud" style="background-color: #6C757D; color: #FFF; text-decoration: none;">
                 Cancelar
             </a>
             <button type="submit" id="btn-guardar" class="btn-crud btn-add">
@@ -55,7 +59,7 @@
     </form>
 </div>
 
-<!-- TUS ARTIFICIOS DE CONTROL JAVASCRIP (INTACTOS) -->
+<!-- CONTROLES JS INTACTOS -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const inputSerie = document.getElementById('id_serie_dispositivo');
@@ -64,11 +68,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnGuardar = document.getElementById('btn-guardar');
     const maquinaId = "{{ maquina.id|default:'' }}";
 
-    // Generador o recuperador de identificador único del hardware/navegador
     function obtenerSerieUnica() {
         let serie = localStorage.getItem('DEVICE_HARDWARE_ID');
         if (!serie) {
-            // Generar UUID estático de la máquina
             serie = 'DEV-' + 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16).toUpperCase();
@@ -78,12 +80,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return serie;
     }
 
-    // Si es un registro nuevo, auto-asignar la serie detectada
     if (!inputSerie.value) {
         inputSerie.value = obtenerSerieUnica();
     }
 
-    // Validar si la máquina ya existe en la base de datos
     function verificarDuplicado() {
         const serie = inputSerie.value;
         fetch(`{% url 'verificar_unicidad_maquina' %}?serie=${encodeURIComponent(serie)}&id=${maquinaId}`)

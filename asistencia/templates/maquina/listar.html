@@ -2,52 +2,56 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- Estilos globales para tablas, contenedores, botones y modales -->
+    <!-- Carga del estándar global de estilos -->
     <link rel="stylesheet" href="{% static 'css/tabla_mantenimiento.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="mantenimiento-container">
 
-    <!-- BARRA SUPERIOR: ACCIONES Y BOTÓN SALIR -->
-    <div class="mantenimiento-header-actions">
-        <div class="mantenimiento-btn-group">
+    <!-- CABECERA DE ACCIONES Y BOTÓN SALIR ALINEADO A LA DERECHA -->
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
+        <div>
             <a href="{% url 'maquina_crear' %}" class="btn-crud btn-add">
                 + Agregar Máquina
             </a>
         </div>
         <div>
-            <a href="{% url 'inicio' %}" class="btn-salir">Salir</a>
+            <a href="{% url 'inicio' %}" class="btn-crud btn-cancel" style="background-color: #d9534f; color: white; text-decoration: none;">
+                Salir
+            </a>
         </div>
     </div>
 
     <!-- TÍTULO DE LA TABLA -->
-    <div class="mantenimiento-titulo-container">
-        <h2 class="mantenimiento-titulo">
+    <div style="border-bottom: 2px solid var(--azul-borde, #003366); padding-bottom: 8px; margin-bottom: 20px;">
+        <h2 style="color: var(--azul-oscuro, #002B49); margin: 0; font-weight: bold; font-size: 1.5rem;">
             Tabla Máquinas / Dispositivos
         </h2>
     </div>
 
-    <!-- TABLA DE REGISTROS -->
-    <table class="tabla-mantenimiento">
+    <!-- TABLA CON ANCHOS Y DISTRIBUCIÓN EXACTA -->
+    <table class="tabla-mantenimiento" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
         <thead>
-            <tr>
-                <th class="col-id">Id</th>
-                <th style="width: 35%;">Serie Dispositivo</th>
-                <th style="width: 37%;">Institución Educativa</th>
-                <th class="col-acciones">Acciones</th>
+            <tr style="background-color: #f1f5f9;">
+                <th style="width: 8%; text-align: center; padding: 12px 10px;">Id</th>
+                <th style="width: 35%; text-align: left; padding: 12px 10px;">Serie Dispositivo</th>
+                <th style="width: 37%; text-align: left; padding: 12px 10px;">Institución Educativa</th>
+                <th style="width: 20%; text-align: center; padding: 12px 10px;">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for m in maquinas %}
-            <tr>
-                <td class="col-id">{{ m.id }}</td>
-                <td class="col-serie">
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="text-align: center; font-weight: bold; padding: 12px 10px;">{{ m.id }}</td>
+                <td style="font-family: monospace; font-size: 0.92rem; font-weight: 600; color: #1e293b; padding: 12px 10px; word-break: break-all;">
                     {{ m.serie_dispositivo }}
                 </td>
-                <td>{{ m.institucion.nombre }}</td>
-                <td class="col-acciones">
-                    <div class="acciones-wrapper">
+                <td style="padding: 12px 10px; color: #334155;">
+                    {{ m.institucion.nombre }}
+                </td>
+                <td style="text-align: center; padding: 12px 10px;">
+                    <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
                         <a href="{% url 'maquina_editar' m.id %}" class="btn-action-edit">
                             Editar
                         </a>
@@ -63,7 +67,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" class="tabla-vacia">
+                <td colspan="4" style="text-align: center; padding: 25px; color: #64748b;">
                     No hay máquinas registradas en el sistema.
                 </td>
             </tr>
@@ -72,7 +76,7 @@
     </table>
 </div>
 
-<!-- INCLUSIÓN DEL MODAL REUTILIZABLE -->
+<!-- INCLUSIÓN DEL MODAL REUTILIZABLE DE ANULACIÓN -->
 {% include 'includes/modal_anular.html' %}
 
 <script>

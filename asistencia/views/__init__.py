@@ -14,5 +14,5 @@ from .instituciones_views import institucion_listar, institucion_crear, instituc
 
 from .personal_views import personal_listar, personal_crear, personal_editar, personal_anular, personal_reporte_pdf, personal_exportar_excel, verificar_unicidad_personal
 
-from .maquinas_views import maquina_listar, maquina_crear, maquina_editar, maquina_eliminar, verificar_unicidad_maquina
+from .maquinas_views import maquina_listar, maquina_crear, maquina_editar, maquina_eliminar, verificar_unicidad_maquina, maquina_exportar_excel, maquina_exportar_pdf
 

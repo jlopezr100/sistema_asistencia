@@ -2,53 +2,52 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- CARGA DE CSS OBLIGATORIA PARA ESTILIZAR MODAL Y BOTONES -->
+    <!-- Estilos globales para tablas, contenedores, botones y modales -->
     <link rel="stylesheet" href="{% static 'css/tabla_mantenimiento.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="mantenimiento-container" style="max-width: 1100px; margin: 30px auto; padding: 20px;">
+<div class="mantenimiento-container">
 
-    <!-- BARRA SUPERIOR IGUAL A CARGOS: ACCIONES A LA IZQUIERDA Y BOTÓN SALIR A LA DERECHA -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div style="display: flex; gap: 10px;">
+    <!-- BARRA SUPERIOR: ACCIONES Y BOTÓN SALIR -->
+    <div class="mantenimiento-header-actions">
+        <div class="mantenimiento-btn-group">
             <a href="{% url 'maquina_crear' %}" class="btn-crud btn-add">
                 + Agregar Máquina
             </a>
         </div>
         <div>
-            <!-- BOTÓN SALIR ROJO -->
             <a href="{% url 'inicio' %}" class="btn-salir">Salir</a>
         </div>
     </div>
 
     <!-- TÍTULO DE LA TABLA -->
-    <div style="border-bottom: 2px solid var(--azul-borde); padding-bottom: 8px; margin-bottom: 20px;">
-        <h2 style="color: var(--azul-oscuro); margin: 0; font-weight: bold; font-size: 1.5rem;">
+    <div class="mantenimiento-titulo-container">
+        <h2 class="mantenimiento-titulo">
             Tabla Máquinas / Dispositivos
         </h2>
     </div>
 
-    <!-- TABLA DE DATOS -->
+    <!-- TABLA DE REGISTROS -->
     <table class="tabla-mantenimiento">
         <thead>
             <tr>
-                <th style="width: 8%; text-align: center;">Id</th>
+                <th class="col-id">Id</th>
                 <th style="width: 35%;">Serie Dispositivo</th>
                 <th style="width: 37%;">Institución Educativa</th>
-                <th style="width: 20%; text-align: center;">Acciones</th>
+                <th class="col-acciones">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for m in maquinas %}
             <tr>
-                <td style="text-align: center; font-weight: bold;">{{ m.id }}</td>
-                <td style="font-family: monospace; font-size: 0.95rem; font-weight: 600; color: var(--azul-oscuro);">
+                <td class="col-id">{{ m.id }}</td>
+                <td class="col-serie">
                     {{ m.serie_dispositivo }}
                 </td>
                 <td>{{ m.institucion.nombre }}</td>
-                <td style="text-align: center;">
-                    <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+                <td class="col-acciones">
+                    <div class="acciones-wrapper">
                         <a href="{% url 'maquina_editar' m.id %}" class="btn-action-edit">
                             Editar
                         </a>
@@ -64,7 +63,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" style="text-align: center; padding: 25px; color: #7F8C8D;">
+                <td colspan="4" class="tabla-vacia">
                     No hay máquinas registradas en el sistema.
                 </td>
             </tr>
@@ -73,7 +72,7 @@
     </table>
 </div>
 
-<!-- MODAL REUTILIZABLE -->
+<!-- INCLUSIÓN DEL MODAL REUTILIZABLE -->
 {% include 'includes/modal_anular.html' %}
 
 <script>

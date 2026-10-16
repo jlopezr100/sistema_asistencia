@@ -1,6 +1,29 @@
-/* static/css/recuadro_huella.css */
+/* ==========================================================================
+   static/css/recuadro_huella.css
+   Estilos unificados para Lector de Huella, Cámara Web y Modales de Tablet
+   ========================================================================== */
 
-/* Estilos de la tarjeta/recuadro de la huella */
+/* --- Contenedor de la Cámara Web (Nuevo) --- */
+.camera-container {
+    border: 3px solid #1F4E78;
+    background: #000000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    max-width: 100%;
+    width: 360px;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+#video {
+    transform: scaleX(-1); /* Efecto espejo natural para el usuario */
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* --- Estilos de la tarjeta/recuadro de la huella (Originales) --- */
 .box-huella {
     border: 2px dashed #1F4E78;
     padding: 20px;
@@ -8,6 +31,8 @@
     background: #FFFFFF;
     text-align: center;
     transition: all 0.3s ease;
+    max-width: 360px;
+    margin: 0 auto;
 }
 
 .box-huella.capturada {
@@ -15,7 +40,7 @@
     background: #F0FFF4 !important;
 }
 
-/* Estados del texto de lectura */
+/* --- Estados del texto de lectura --- */
 .st-pendiente {
     margin: 10px 0;
     font-weight: 600;
@@ -27,9 +52,9 @@
     color: #27AE60 !important;
 }
 
-/* Botones de acción del lector */
+/* --- Botones de acción del lector --- */
 .btn-apoyar-dedo {
-    padding: 10px 20px;
+    padding: 12px 20px;
     background: #1F4E78;
     color: #FFFFFF;
     border: none;
@@ -37,14 +62,18 @@
     cursor: pointer;
     font-weight: 600;
     width: 100%;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .btn-apoyar-dedo:hover {
     background: #153754;
 }
 
-/* Modal y Zona Táctil de la Tablet */
+.btn-apoyar-dedo:active {
+    transform: scale(0.98);
+}
+
+/* --- Modal y Zona Táctil de la Tablet --- */
 .modal-biometrico-overlay {
     display: none;
     position: fixed;
@@ -62,7 +91,7 @@
     background: #FFFFFF;
     padding: 25px;
     border-radius: 15px;
-    width: 360px;
+    width: 380px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
@@ -80,4 +109,13 @@
 .zona-touch-tablet:hover {
     background: #D6EAF8;
     border-color: #153754;
+}
+
+/* --- Estados de Alerta del Sistema Integrados --- */
+.alert {
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    max-width: 360px;
+    margin: 15px auto 0 auto;
 }

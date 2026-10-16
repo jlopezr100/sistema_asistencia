@@ -1,0 +1,58 @@
+{% extends 'includes/header.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Vinculación de tus estilos unificados -->
+<link rel="stylesheet" href="{% static 'css/recuadro_huella.css' %}">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-3" style="background-color: #1F4E78 !important;">
+                    <h4 class="mb-0 font-weight-bold"><i class="fas fa-fingerprint"></i> CONTROL DE ASISTENCIA BIOMÉTRICO</h4>
+                </div>
+                <div class="card-body p-4 bg-light">
+                    
+                    <!-- 1. BLOQUE DE CAPTURA VISUAL (Cámara Web) -->
+                    <div class="camera-container mb-4">
+                        <video id="video" autoplay muted></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                    </div>
+
+                    <!-- 2. BLOQUE REUTILIZADO Y ADAPTADO: Recuadro de la Huella -->
+                    <div id="contenedor-huella" class="box-huella mb-4">
+                        <i class="fas fa-id-card-alt fa-3x mb-2" style="color: #1F4E78;"></i>
+                        <p id="estado-lectura" class="st-pendiente">
+                            <i class="fas fa-circle-notch fa-spin"></i> ESPERANDO ACCIÓN DEL PERSONAL...
+                        </p>
+                        
+                        <!-- Formulario de Entrada de Datos -->
+                        <form id="form-asistencia" class="px-2">
+                            <input type="hidden" id="latitud" name="latitud">
+                            <input type="hidden" id="longitud" name="longitud">
+                            
+                            <div class="form-group mb-3">
+                                <label for="huella" class="form-label font-weight-bold text-muted small text-uppercase">Código / Token de Huella Digital</label>
+                                <input type="text" id="huella" name="huella" class="form-control text-center form-control-lg font-weight-bold" 
+                                       placeholder="Escanee huella o ingrese código" style="border-color: #1F4E78;" required>
+                            </div>
+                            
+                            <button type="button" id="btn-marcar" class="btn-apoyar-dedo shadow-sm">
+                                <i class="fas fa-check-circle"></i> VERIFICAR E INGRESRAR MARCADO
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- 3. MENSAJES DINÁMICOS DEL SISTEMA (Centrados y Acoplados) -->
+                    <div id="mensaje-sistema" class="alert d-none shadow-sm text-center" role="alert"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enlace a tu script de control -->
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

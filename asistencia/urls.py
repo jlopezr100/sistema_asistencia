@@ -1,6 +1,8 @@
 #from django.contrib import admin
 from django.urls import path
 from . import views
+from asistencia.views import asistencia_views
+
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
@@ -81,6 +83,11 @@ urlpatterns = [
     path('maquinas/verificar-unicidad/', views.verificar_unicidad_maquina, name='verificar_unicidad_maquina'),
     path('maquinas/exportar/pdf/', views.maquina_exportar_pdf, name='maquina_exportar_pdf'),
     path('maquinas/exportar/excel/', views.maquina_exportar_excel, name='maquina_exportar_excel'),
+
+    # Rutas del Módulo de Marcado de Asistencia
+    path('asistencia/marcar/', asistencia_views.mostrar_pantalla_marcado, name='mostrar_marcado'),
+    path('asistencia/api/registrar/', asistencia_views.registrar_marcado_tiempo_real, name='api_registrar_marcado'),
+
+    path('nosotros/', views.nosotros, name='nototros'),
     
-    path('nosotros/', views.nosotros, name='nosotros'),
 ]

@@ -11,10 +11,13 @@ from asistencia.models import Personal, Maquina, Asistencia, Incidencia, Corte
 # ---------------------------------------------------------------------------
 def mostrar_pantalla_marcado(request):
     """
-    Renderiza la interfaz web con la cámara, el lector de huella y el GPS.
+    Renderiza la interfaz web alineada con el estándar corporativo.
     """
-    return render(request, 'asistencia/marcar.html')
-
+    context = {
+        'titulo_seccion': 'Marcado Biométrico',
+        'mantenimiento_activo': False,  # <-- OBLIGATORIO: False para NO deshabilitar el menú
+    }
+    return render(request, 'asistencia/marcar.html', context)
 
 # ---------------------------------------------------------------------------
 # VISTA 2: Procesamiento del Marcado en Tiempo Real (API Fetch)

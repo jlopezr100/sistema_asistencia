@@ -15,16 +15,15 @@
         <h2><i class="fas fa-fingerprint"></i> Control de Asistencia Digital</h2>
     </div>
 
-    <!-- Transmisión de la cámara web -->
-    <div class="camera-container mb-4">
+    <!-- La cámara web ahora trabaja de forma invisible de fondo -->
+    <div class="camera-container" style="display: none;">
         <video id="video" autoplay muted></video>
-        <canvas id="canvas" style="display:none;"></canvas>
+        <canvas id="canvas"></canvas>
     </div>
-
 
     <!-- Zona de la huella con diseño autónomo garantizado -->
     <div id="contenedor-huella" class="box-huella">
-        
+
         <!-- Elemento gráfico generado 100% por CSS (No requiere librerías) -->
         <div class="sensor-container">
             <div class="huella-digital-css">
@@ -35,17 +34,17 @@
         <p id="estado-lectura" class="st-pendiente text-uppercase">
             Coloque el dedo en el lector
         </p>
-        
+
         <form id="form-asistencia">
             <input type="hidden" id="latitud" name="latitud">
             <input type="hidden" id="longitud" name="longitud">
-            
+
             <div style="margin-bottom: 20px;">
                 <!-- Cambiado a type="password" para ocultar los caracteres enviados -->
-                <input type="password" id="huella" name="huella" class="form-input-biometric" 
-                       placeholder="••••••••" autocomplete="off" required>
+                <input type="password" id="huella" name="huella" class="form-input-biometric" placeholder="••••••••"
+                    autocomplete="off" required>
             </div>
-            
+
             <button type="button" id="btn-marcar" class="btn-apoyar-dedo">
                 Confirmar Identidad
             </button>

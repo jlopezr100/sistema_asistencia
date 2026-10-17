@@ -8,123 +8,108 @@ if (inputHuella) {
     });
 }
 document.addEventListener("DOMContentLoaded", function () {
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const btnMarcar = document.getElementById("btn-marcar");
-    const mensajeSistema = document.getElementById("mensaje-sistema");
+    const inputHuella = document.getElementById("huella");
+    const formAsistencia = document.getElementById("form-asistencia");
 
-    // 1. Activar la Cámara Web automáticamente al cargar la pantalla
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-                video.srcObject = stream;
-            })
-            .catch(function (error) {
-                mostrarMensaje("Error al acceder a la cámara web. Verifica los permisos.", "alert-danger");
-            });
+    // Mantener el cursor enfocado permanentemente en el input para lectura rápida
+    if (inputHuella) {
+        inputHuella.focus();
+        document.addEventListener("click", () => {
+            setTimeout(() => { inputHuella.focus(); }, 1500);
+        });
     }
 
-    // 2. Capturar las coordenadas de Geolocalización (GPS) en tiempo real
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(function (position) {
-            document.getElementById("latitud").value = position.coords.latitude;
-            document.getElementById("longitud").value = position.coords.longitude;
-        }, function (error) {
-            mostrarMensaje("Por favor, activa la ubicación GPS en tu dispositivo para poder marcar.", "alert-warning");
-        }, { enableHighAccuracy: true });
-    } else {
-        mostrarMensaje("Tu navegador no soporta geolocalización.", "alert-danger");
-    }
+    // Detectar cuando el lector inyecta la huella y presiona "Enter" automáticamente
+    if (inputHuella) {
+        inputHuella.addEventListener("keydown", function (event) {
+            // 13 es el código de la tecla Enter
+            if (event.key === "Enter" || event.keyCode === 13) {
+                event.preventDefault(); // Evita que la página se recargue de forma tradicional
+                
+                const huellaValor = inputHuella.value.trim();
+                const lat = document.getElementById("latitud").value;
+                const lon = document.getElementById("longitud").value;
 
-    // 3. Evento al hacer clic en el botón de Marcar
-    btnMarcar.addEventListener("click", function () {
-        const huella = document.getElementById("huella").value;
-        const lat = document.getElementById("latitud").value;
-        const lon = document.getElementById("longitud").value;
+                if (!huellaValor) return; // Si está vacío, no hace nada
 
-        if (!huella) {
-            mostrarMensaje("Debe ingresar o escanear una huella digital.", "alert-warning");
-            return;
-        }
-        if (!lat || !lon) {
-            mostrarMensaje("Esperando señal GPS válida... Intente de nuevo en unos segundos.", "alert-warning");
-            return;
-        }
+                if (!lat || !lon) {
+                    const mensajeSistema = document.getElementById("mensaje-sistema");
+                    mensajeSistema.classList.remove("d-none");
+                    mensajeSistema.className = "alert alert-warning text-center font-weight-bold";
+                    mensajeSistema.innerHTML = "❌ Error: Esperando señal GPS válida... Intente en 2 segundos.";
+                    return;
+                }
 
-        // Bloquear botón temporalmente
-        btnMarcar.disabled = true;
+                // Deshabilitar temporalmente el campo para evitar lecturas duplicadas seguidas
+                inputHuella.disabled = true;
 
-        // Capturar el fotograma actual de la cámara web
-        const context = canvas.getContext("2d");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                // Capturar fotograma de fondo (Canvas oculto)
+                const video = document.getElementById("video");
+                const canvas = document.getElementById("canvas");
+                const context = canvas.getContext("2d");
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Convertir la captura del canvas a un archivo BLOB (binario) de tipo imagen
-        canvas.toBlob(function (blob) {
-            const formData = new FormData();
-            formData.append("huella", huella);
-            formData.append("latitud", lat);
-            formData.append("longitud", lon);
-            formData.append("serie_dispositivo", "PC-LOCAL-NAVEGADOR"); // Reemplazar dinámicamente si se expone la serie del cliente
-            formData.append("ubicacion_imagen", blob, `marcado_${Date.now()}.jpg`);
+                // Convertir la foto a binario y procesar el envío
+                canvas.toBlob(function (blob) {
+                    const formData = new FormData();
+                    formData.append("huella", huellaValor);
+                    formData.append("latitud", lat);
+                    formData.append("longitud", lon);
+                    formData.append("serie_dispositivo", "PC-LOCAL-NAVEGADOR");
+                    formData.append("ubicacion_imagen", blob, `marcado_${Date.now()}.jpg`);
 
-            // Enviar la información completa a Django mediante AJAX Fetch
-            // Enviar la información completa a Django mediante AJAX Fetch
-            fetch("/asistencia/api/registrar/", {
-                method: "POST",
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    btnMarcar.disabled = false;
-                    const boxHuella = document.getElementById("contenedor-huella");
-                    const estadoLectura = document.getElementById("estado-lectura");
-                    const inputHuella = document.getElementById("huella");
+                    // Petición AJAX silenciosa a Django
+                    fetch("/asistencia/api/registrar/", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        inputHuella.disabled = false; // Desbloquear campo para el siguiente usuario
+                        const boxHuella = document.getElementById("contenedor-huella");
+                        const mensajeSistema = document.getElementById("mensaje-sistema");
 
-                    if (data.status === "success") {
-                        // 1. Cambiar visualmente a estado de Éxito (Verde)
-                        boxHuella.classList.add("capturada");
-                        estadoLectura.style.color = "#27AE60";
-                        estadoLectura.innerHTML = `✓ MARCADO PROCESADO CON ÉXITO`;
-                        mostrarMensaje(data.message, "alert-success");
+                        mensajeSistema.classList.remove("d-none");
 
-                        // 2. Limpieza automática tras 3 segundos para el siguiente personal
-                        setTimeout(() => {
-                            boxHuella.classList.remove("capturada");
-                            estadoLectura.style.color = "#333333";
-                            estadoLectura.innerHTML = "ESPERANDO ACCIÓN DEL PERSONAL...";
-                            inputHuella.value = ""; // Limpia los puntos ••••••••
-                            inputHuella.focus();    // Reenfoca el cursor automáticamente
-                        }, 3000);
+                        if (data.status === "success") {
+                            // --- REGISTRO CORRECTO ---
+                            if (boxHuella) boxHuella.classList.add("capturada");
+                            mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
+                            mensajeSistema.innerHTML = `✓ ${data.message}`;
+                            
+                            setTimeout(() => {
+                                if (boxHuella) boxHuella.classList.remove("capturada");
+                                mensajeSistema.classList.add("d-none");
+                                inputHuella.value = "";
+                                inputHuella.focus();
+                            }, 3000);
 
-                    } else {
-                        // 3. Manejo de Incidencias o Errores (Rojo / Naranja)
-                        estadoLectura.style.color = "#E74C3C";
-                        estadoLectura.innerHTML = `❌ VERIFICACIÓN RECHAZADA`;
-
-                        if (data.status === "invalid" || data.status === "warning") {
-                            mostrarMensaje(data.message, "alert-warning");
                         } else {
-                            mostrarMensaje(data.message, "alert-danger");
+                            // --- USUARIO NO EXISTE O INCIDENCIAS ---
+                            mensajeSistema.className = data.status === "invalid" 
+                                ? "alert alert-warning text-center font-weight-bold shadow-sm"
+                                : "alert alert-danger text-center font-weight-bold shadow-sm";
+                            
+                            mensajeSistema.innerHTML = `❌ ${data.message}`;
+
+                            setTimeout(() => {
+                                mensajeSistema.classList.add("d-none");
+                                inputHuella.value = "";
+                                inputHuella.focus();
+                            }, 4000);
                         }
-
-                        // Limpiar el estado de error tras 4 segundos para permitir reintentar
-                        setTimeout(() => {
-                            estadoLectura.style.color = "#333333";
-                            estadoLectura.innerHTML = "ESPERANDO ACCIÓN DEL PERSONAL...";
-                            inputHuella.value = "";
-                            inputHuella.focus();
-                        }, 4000);
-                    }
-                })
-        }, "image/jpeg");
-    });
-
-    // Función auxiliar para renderizar alertas dinámicas en pantalla
-    function mostrarMensaje(texto, claseAlerta) {
-        mensajeSistema.className = `alert mt-3 ${claseAlerta}`;
-        mensajeSistema.innerText = texto;
-        mensajeSistema.classList.remove("d-none");
+                    })
+                    .catch(error => {
+                        inputHuella.disabled = false;
+                        const mensajeSistema = document.getElementById("mensaje-sistema");
+                        mensajeSistema.classList.remove("d-none");
+                        mensajeSistema.className = "alert alert-danger text-center font-weight-bold";
+                        mensajeSistema.innerHTML = "⚠️ Error de red o comunicación fallida con el servidor.";
+                    });
+                }, "image/jpeg");
+            }
+        });
     }
 });

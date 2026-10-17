@@ -6,7 +6,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/recuadro_huella.css' %}">
 <style>
-    /* Estilos específicos para la cabecera del Quiosco Seguro */
     .header-quiosco {
         display: flex;
         justify-content: space-between;
@@ -29,14 +28,38 @@
         text-decoration: none;
         font-weight: bold;
         font-size: 0.9rem;
-        transition: background 0.2s ease;
         display: inline-flex;
         align-items: center;
         gap: 8px;
     }
-    .btn-salir-quiosco:hover {
-        background-color: #C0392B;
-        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    /* Estilos del nuevo Panel de Seguimiento Técnico */
+    .panel-debug {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        font-family: 'Courier New', Courier, monospace;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: left;
+        font-size: 0.85rem;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        border: 1px solid #34495e;
+    }
+    .panel-debug h5 {
+        color: #3498db;
+        margin-top: 0;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #34495e;
+        padding-bottom: 5px;
+        font-size: 0.95rem;
+        font-weight: bold;
+    }
+    .debug-line {
+        margin-bottom: 6px;
+    }
+    .debug-label {
+        color: #f1c40f;
+        font-weight: bold;
     }
 </style>
 {% endblock %}
@@ -44,7 +67,6 @@
 {% block content %}
 <div class="mantenimiento-container" style="max-width: 550px; margin: 30px auto;">
     
-    <!-- CABECERA MODIFICADA: Título a la izquierda y Botón Salir a la derecha -->
     <div class="header-quiosco">
         <h2><i class="fas fa-fingerprint"></i> Control de Asistencia Digital</h2>
         <a href="{% url 'inicio' %}" class="btn-salir-quiosco">
@@ -52,7 +74,6 @@
         </a>
     </div>
 
-    <!-- La cámara web trabaja de forma invisible de fondo -->
     <div class="camera-container" style="display: none;">
         <video id="video" autoplay muted></video>
         <canvas id="canvas"></canvas>
@@ -66,7 +87,7 @@
             </div>
         </div>
 
-        <p id="estado-lectura" class="st-pendiente text-uppercase" style="font-weight: bold; color: #1F4E78; letter-spacing: 0.5px;">
+        <p id="estado-lectura" class="st-pendiente text-uppercase" style="font-weight: bold; color: #1F4E78;">
             TOQUE EL ESCÁNER PARA COLOCAR EL DEDO
         </p>
         
@@ -77,7 +98,15 @@
         </form>
     </div>
 
-    <!-- Contenedor para banners de respuestas inmediatas del servidor -->
+    <!-- NUEVO: PANEL DE SEGUIMIENTO Y MONITOREO TÉCNICO -->
+    <div class="panel-debug">
+        <h5><i class="fas fa-terminal"></i> CONSOLA DE DIAGNÓSTICO</h5>
+        <div class="debug-line"><span class="debug-label">[HUELLA]:</span> <span id="log-huella">Esperando lectura...</span></div>
+        <div class="debug-line"><span class="debug-label">[DISPOSITIVO]:</span> <span id="log-dispositivo">PC-LOCAL-NAVEGADOR</span></div>
+        <div class="debug-line"><span class="debug-label">[LATITUD]:</span> <span id="log-latitud">Buscando señal GPS...</span></div>
+        <div class="debug-line"><span class="debug-label">[LONGITUD]:</span> <span id="log-longitud">Buscando señal GPS...</span></div>
+    </div>
+
     <div id="mensaje-sistema" class="alert d-none text-center font-weight-bold" style="margin-top: 25px; font-size: 1.1rem; padding: 15px; border-radius: 10px;"></div>
 </div>
 {% endblock %}

@@ -22,14 +22,16 @@
     </div>
 
     <!-- Zona de la huella adaptada a tus clases nativas -->
+    <!-- Zona de la huella adaptada con soporte de iconos universales -->
     <div id="contenedor-huella" class="box-huella">
-        <!-- Icono interactivo que simula el sensor del quiosco -->
-        <div class="icon-biometric">
-            <i class="fas fa-fingerprint fa-5x"></i>
+
+        <!-- Usamos un icono de mano o tarjeta que existe en el 100% de las versiones -->
+        <div class="icon-biometric" style="font-size: 4rem; color: #1F4E78; margin-bottom: 10px;">
+            <i class="fa fa-hand-pointer-o"></i>
         </div>
 
         <p id="estado-lectura" class="st-pendiente text-uppercase">
-            <i class="fas fa-arrow-down animate-bounce"></i> Coloque el dedo en el lector
+            Coloque el dedo en el lector
         </p>
 
         <form id="form-asistencia">
@@ -42,7 +44,7 @@
             </div>
 
             <button type="button" id="btn-marcar" class="btn-apoyar-dedo">
-                <i class="fas fa-check-circle"></i> Confirmar Identidad
+                Confirmar Identidad
             </button>
         </form>
     </div>

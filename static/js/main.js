@@ -1,120 +1,90 @@
-document.addEventListener("DOMContentLoaded", function () {
+// Función global que se activa al interactuar con el escáner láser
+function procesarMarcadoBiometrico() {
     const inputHuella = document.getElementById("huella");
-    const formAsistencia = document.getElementById("form-asistencia");
     const mensajeSistema = document.getElementById("mensaje-sistema");
     const boxHuella = document.getElementById("contenedor-huella");
     const estadoLectura = document.getElementById("estado-lectura");
 
-    // Mantener el foco automático en el campo del lector de fondo
-    if (inputHuella) {
-        inputHuella.focus();
-        document.addEventListener("click", () => {
-            setTimeout(() => { inputHuella.focus(); }, 500);
-        });
-    }
+    if (!boxHuella || boxHuella.classList.contains("capturada")) return;
 
-    // Interceptar el envío automático del sensor biométrico
-    if (inputHuella) {
-        inputHuella.addEventListener("keydown", function (event) {
-            if (event.key === "Enter" || event.keyCode === 13) {
-                event.preventDefault(); // Evita recargar la página
+    // 1. Clonamos la lógica de simulación de tu archivo Personal
+    estadoLectura.innerHTML = "⏳ PROCESANDO HUELLA...";
+    if (mensajeSistema) mensajeSistema.classList.add("d-none");
 
-                const huellaValor = inputHuella.value.trim();
-                const lat = document.getElementById("latitud").value || "0";
-                const lon = document.getElementById("longitud").value || "0";
+    // Simulamos un retraso de lectura idéntico al de tu registro (1.5 segundos)
+    setTimeout(() => {
+        // Genera un token aleatorio emulando el comportamiento de tu modulo Personal
+        const tokenHuella = "BIO_INDICE_" + Math.random().toString(36).substring(2, 12).toUpperCase();
+        if (inputHuella) inputHuella.value = tokenHuella;
 
-                if (!huellaValor) return;
+        const lat = document.getElementById("latitud").value || "-9.53000000";
+        const lon = document.getElementById("longitud").value || "-77.53000000";
 
-                // Cambiar estado a búsqueda activa
-                if (estadoLectura) estadoLectura.innerHTML = "BUSCANDO PERSONAL...";
-                if (mensajeSistema) mensajeSistema.classList.add("d-none");
+        // Preparación del paquete de envío hacia Django
+        const formData = new FormData();
+        formData.append("huella", tokenHuella);
+        formData.append("latitud", lat);
+        formData.append("longitud", lon);
+        formData.append("serie_dispositivo", "PC-LOCAL-NAVEGADOR");
 
-                // Capturar el fotograma de fondo (Canvas oculto)
-                const video = document.getElementById("video");
-                const canvas = document.getElementById("canvas");
-                const context = canvas.getContext("2d");
-                
-                if (video && canvas) {
-                    canvas.width = video.videoWidth || 640;
-                    canvas.height = video.videoHeight || 480;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                }
+        // Realizar la búsqueda y validación en cascada en el servidor
+        fetch("/asistencia/api/registrar/", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (mensajeSistema) mensajeSistema.classList.remove("d-none");
 
-                // Función interna para procesar el envío del formulario con o sin blob
-                const enviarData = (blob) => {
-                    const formData = new FormData();
-                    formData.append("huella", huellaValor);
-                    formData.append("latitud", lat);
-                    formData.append("longitud", lon);
-                    formData.append("serie_dispositivo", "PC-LOCAL-NAVEGADOR");
-                    if (blob) {
-                        formData.append("ubicacion_imagen", blob, `marcado_${Date.now()}.jpg`);
-                    }
+            if (data.status === "success") {
+                // --- CASO: PERSONAL VÁLIDO / REGISTRO CORRECTO ---
+                boxHuella.classList.add("capturada");
+                estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
+                estadoLectura.style.color = "#27AE60";
 
-                    fetch("/asistencia/api/registrar/", {
-                        method: "POST",
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (mensajeSistema) mensajeSistema.classList.remove("d-none");
+                mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
+                mensajeSistema.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
 
-                        if (data.status === "success") {
-                            if (boxHuella) boxHuella.classList.add("capturada");
-                            if (estadoLectura) estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
-                            
-                            if (mensajeSistema) {
-                                mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
-                                mensajeSistema.innerHTML = data.message;
-                            }
-                            
-                            setTimeout(() => {
-                                if (boxHuella) boxHuella.classList.remove("capturada");
-                                if (estadoLectura) estadoLectura.innerHTML = "Coloque el dedo en el lector";
-                                if (mensajeSistema) mensajeSistema.classList.add("d-none");
-                                inputHuella.value = "";
-                                inputHuella.focus();
-                            }, 3000);
+                // Temporizador de reseteo para el siguiente trabajador
+                setTimeout(() => {
+                    boxHuella.classList.remove("capturada");
+                    estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
+                    estadoLectura.style.color = "#1F4E78";
+                    mensajeSistema.classList.add("d-none");
+                    if (inputHuella) inputHuella.value = "";
+                }, 3500);
 
-                        } else {
-                            if (boxHuella) boxHuella.classList.remove("capturada");
-                            if (estadoLectura) estadoLectura.innerHTML = "❌ ACCESO DENEGADO";
-                            
-                            if (mensajeSistema) {
-                                mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
-                                mensajeSistema.innerHTML = data.message;
-                            }
+            } else {
+                // --- CASO: EL USUARIO NO EXISTE O INCIDENCIA ---
+                boxHuella.classList.remove("capturada");
+                estadoLectura.innerHTML = "❌ ACCESO DENEGADO";
+                estadoLectura.style.color = "#E74C3C";
 
-                            setTimeout(() => {
-                                if (estadoLectura) estadoLectura.innerHTML = "Coloque el dedo en el lector";
-                                if (mensajeSistema) mensajeSistema.classList.add("d-none");
-                                inputHuella.value = "";
-                                inputHuella.focus();
-                            }, 4000);
-                        }
-                    })
-                    .catch(error => {
-                        if (estadoLectura) estadoLectura.innerHTML = "Coloque el dedo en el lector";
-                        if (mensajeSistema) {
-                            mensajeSistema.classList.remove("d-none");
-                            mensajeSistema.className = "alert alert-danger text-center font-weight-bold";
-                            mensajeSistema.innerHTML = "⚠️ Error de comunicación con el servidor.";
-                        }
-                        inputHuella.value = "";
-                    });
-                };
+                mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+                mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> ${data.message}`;
 
-                // Si hay canvas válido genera el blob, si no, envía directo para no trabar el flujo
-                if (canvas && video && video.srcObject) {
-                    canvas.toBlob(enviarData, "image/jpeg");
-                } else {
-                    enviarData(null);
-                }
+                setTimeout(() => {
+                    estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
+                    estadoLectura.style.color = "#1F4E78";
+                    mensajeSistema.classList.add("d-none");
+                    if (inputHuella) inputHuella.value = "";
+                }, 4000);
+            }
+        })
+        .catch(error => {
+            estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
+            if (mensajeSistema) {
+                mensajeSistema.classList.remove("d-none");
+                mensajeSistema.className = "alert alert-danger text-center font-weight-bold";
+                mensajeSistema.innerHTML = "⚠️ Error de comunicación con el servidor.";
             }
         });
-    }
 
-    // Capturar coordenadas GPS automáticamente de fondo
+    }, 1500);
+}
+
+// Invocación pasiva de geolocalización al cargar la página
+document.addEventListener("DOMContentLoaded", function () {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(function (position) {
             const latInput = document.getElementById("latitud");

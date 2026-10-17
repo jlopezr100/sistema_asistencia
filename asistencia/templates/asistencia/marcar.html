@@ -4,7 +4,6 @@
 {% block title %}Marcado de Asistencia - UGEL Yungay{% endblock %}
 
 {% block extra_css %}
-<!-- Inyección de tus estilos unificados en el head de base.html -->
 <link rel="stylesheet" href="{% static 'css/recuadro_huella.css' %}">
 {% endblock %}
 
@@ -14,43 +13,39 @@
         <h2><i class="fas fa-fingerprint"></i> Control de Asistencia Digital</h2>
     </div>
 
-    <!-- La cámara web ahora trabaja de forma invisible de fondo -->
+    <!-- Contenedor invisible para el procesamiento fotográfico de fondo -->
     <div class="camera-container" style="display: none;">
         <video id="video" autoplay muted></video>
         <canvas id="canvas"></canvas>
     </div>
 
-    <!-- Zona de la huella con diseño autónomo garantizado -->
-    <div id="contenedor-huella" class="box-huella">
-
-        <!-- Elemento gráfico generado 100% por CSS (No requiere librerías) -->
+    <!-- ZONA INTERACTIVA: Al hacer clic simulará la lectura tal como en Personal -->
+    <div id="contenedor-huella" class="box-huella" onclick="procesarMarcadoBiometrico()" style="cursor: pointer;">
+        
         <div class="sensor-container">
             <div class="huella-digital-css">
                 <div class="linea-escaner"></div>
             </div>
         </div>
 
-        <p id="estado-lectura" class="st-pendiente text-uppercase">
-            Coloque el dedo en el lector
+        <!-- Texto de instrucción dinámico -->
+        <p id="estado-lectura" class="st-pendiente text-uppercase" style="font-weight: bold; color: #1F4E78;">
+            TOQUE EL ESCÁNER PARA COLOCAR EL DEDO
         </p>
-
-        <form id="form-asistencia">
+        
+        <form id="form-asistencia" onsubmit="return false;">
             <input type="hidden" id="latitud" name="latitud">
             <input type="hidden" id="longitud" name="longitud">
-            <div style="margin-bottom: 5px;">
-                <input type="password" id="huella" name="huella"
-                    style="position: absolute; top: -9999px; left: -9999px; opacity: 0;" autocomplete="off" required>
-            </div>
+            <!-- El input recibe el valor de fondo de la simulación -->
+            <input type="hidden" id="huella" name="huella">
         </form>
     </div>
 
-    <!-- Notificaciones del sistema embebidas (Listas para actuar con JS) -->
-    <div id="mensaje-sistema" class="alert d-none shadow-sm text-center"
-        style="margin-top: 15px; font-size: 1.1rem; font-weight: bold; padding: 12px;"></div>
+    <!-- Bloque prioritario para banners de respuestas y búsquedas -->
+    <div id="mensaje-sistema" class="alert d-none text-center font-weight-bold" style="margin-top: 25px; font-size: 1.1rem; padding: 15px; border-radius: 10px;"></div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Script de control posicionado al final del cuerpo -->
 <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

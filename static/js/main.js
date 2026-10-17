@@ -1,6 +1,6 @@
 // Mantener el foco automático en el campo del lector para marcados rápidos
 const inputHuella = document.getElementById("huella");
-if(inputHuella) {
+if (inputHuella) {
     inputHuella.focus();
     // Si el usuario hace clic afuera, reenfocar automáticamente a los 2 segundos
     document.addEventListener("click", () => {
@@ -70,52 +70,54 @@ document.addEventListener("DOMContentLoaded", function () {
             formData.append("ubicacion_imagen", blob, `marcado_${Date.now()}.jpg`);
 
             // Enviar la información completa a Django mediante AJAX Fetch
-            fetch("/asistencia/marcar/", {
+            // Enviar la información completa a Django mediante AJAX Fetch
+            fetch("/asistencia/api/registrar/", {
                 method: "POST",
-                body: formData,
-                headers: {
-                    // El CSRF token se puede omitir si mantienes el @csrf_exempt en la vista de Django
-                }
+                body: formData
             })
                 .then(response => response.json())
                 .then(data => {
                     btnMarcar.disabled = false;
                     const boxHuella = document.getElementById("contenedor-huella");
                     const estadoLectura = document.getElementById("estado-lectura");
+                    const inputHuella = document.getElementById("huella");
 
                     if (data.status === "success") {
-                        // Efecto visual de captura exitosa (Verde)
+                        // 1. Cambiar visualmente a estado de Éxito (Verde)
                         boxHuella.classList.add("capturada");
-                        estadoLectura.className = "st-pendiente st-capturada";
-                        estadoLectura.innerHTML = `<i class="fas fa-check-circle"></i> HUELLES COINCIDENTES: REGISTRO GUARDADO`;
-
+                        estadoLectura.style.color = "#27AE60";
+                        estadoLectura.innerHTML = `✓ MARCADO PROCESADO CON ÉXITO`;
                         mostrarMensaje(data.message, "alert-success");
-                        document.getElementById("huella").value = "";
 
-                        // Quitar el estado verde a los 4 segundos para el siguiente personal
+                        // 2. Limpieza automática tras 3 segundos para el siguiente personal
                         setTimeout(() => {
                             boxHuella.classList.remove("capturada");
-                            estadoLectura.className = "st-pendiente";
-                            estadoLectura.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ESPERANDO ACCIÓN DEL PERSONAL...`;
-                        }, 4000);
+                            estadoLectura.style.color = "#333333";
+                            estadoLectura.innerHTML = "ESPERANDO ACCIÓN DEL PERSONAL...";
+                            inputHuella.value = ""; // Limpia los puntos ••••••••
+                            inputHuella.focus();    // Reenfoca el cursor automáticamente
+                        }, 3000);
 
                     } else {
-                        // Estados de error o inconsistencias
-                        boxHuella.classList.remove("capturada");
-                        estadoLectura.className = "st-pendiente";
-                        estadoLectura.innerHTML = `<i class="fas fa-times-circle"></i> VERIFICACIÓN FALLIDA`;
+                        // 3. Manejo de Incidencias o Errores (Rojo / Naranja)
+                        estadoLectura.style.color = "#E74C3C";
+                        estadoLectura.innerHTML = `❌ VERIFICACIÓN RECHAZADA`;
 
                         if (data.status === "invalid" || data.status === "warning") {
                             mostrarMensaje(data.message, "alert-warning");
                         } else {
                             mostrarMensaje(data.message, "alert-danger");
                         }
+
+                        // Limpiar el estado de error tras 4 segundos para permitir reintentar
+                        setTimeout(() => {
+                            estadoLectura.style.color = "#333333";
+                            estadoLectura.innerHTML = "ESPERANDO ACCIÓN DEL PERSONAL...";
+                            inputHuella.value = "";
+                            inputHuella.focus();
+                        }, 4000);
                     }
                 })
-                .catch(error => {
-                    btnMarcar.disabled = false;
-                    mostrarMensaje("Error de red o comunicación fallida con el servidor.", "alert-danger");
-                });
         }, "image/jpeg");
     });
 

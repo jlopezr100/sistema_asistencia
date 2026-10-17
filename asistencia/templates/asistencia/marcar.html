@@ -13,7 +13,7 @@
     <div class="section-header">
         <h2><i class="fas fa-fingerprint"></i> Control de Asistencia Digital</h2>
     </div>
-    
+
     <!-- Transmisión de la cámara web -->
     <div class="camera-container mb-4">
         <video id="video" autoplay muted></video>
@@ -22,25 +22,26 @@
 
     <!-- Zona de la huella adaptada a tus clases nativas -->
     <div id="contenedor-huella" class="box-huella">
-        <p id="estado-lectura" class="st-pendiente">
-            ESPERANDO ACCIÓN DEL PERSONAL...
+        <!-- Icono interactivo que simula el sensor del quiosco -->
+        <div class="icon-biometric">
+            <i class="fas fa-fingerprint fa-5x"></i>
+        </div>
+
+        <p id="estado-lectura" class="st-pendiente text-uppercase">
+            <i class="fas fa-arrow-down animate-bounce"></i> Coloque el dedo en el lector
         </p>
-        
-        <form id="form-asistencia" style="margin-top: 15px;">
+
+        <form id="form-asistencia">
             <input type="hidden" id="latitud" name="latitud">
             <input type="hidden" id="longitud" name="longitud">
-            
-            <div style="margin-bottom: 15px; text-align: left;">
-                <label for="huella" style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--azul-oscuro);">
-                    Código de Huella Digital *
-                </label>
-                <input type="text" id="huella" name="huella" class="form-input-search" 
-                       style="width: 100%; text-align: center; font-size: 1.1rem; font-weight: bold;" 
-                       placeholder="Pasa la huella por el lector" required>
+
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="huella" name="huella" class="form-input-biometric" placeholder="••••••••"
+                    autocomplete="off" required>
             </div>
-            
+
             <button type="button" id="btn-marcar" class="btn-apoyar-dedo">
-                Verificar e Ingresar Marcado
+                <i class="fas fa-check-circle"></i> Confirmar Identidad
             </button>
         </form>
     </div>

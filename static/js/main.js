@@ -1,3 +1,12 @@
+// Mantener el foco automático en el campo del lector para marcados rápidos
+const inputHuella = document.getElementById("huella");
+if(inputHuella) {
+    inputHuella.focus();
+    // Si el usuario hace clic afuera, reenfocar automáticamente a los 2 segundos
+    document.addEventListener("click", () => {
+        setTimeout(() => { inputHuella.focus(); }, 2000);
+    });
+}
 document.addEventListener("DOMContentLoaded", function () {
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");

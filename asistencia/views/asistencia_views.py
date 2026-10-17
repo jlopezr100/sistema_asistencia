@@ -7,9 +7,13 @@ from datetime import date
 from asistencia.models import Personal, Maquina, Asistencia, Incidencia, Corte
 
 def mostrar_pantalla_marcado(request):
+    """
+    Renderiza la interfaz de asistencia bloqueando el menú superior
+    y configurando el entorno seguro tipo quiosco.
+    """
     context = {
         'titulo_seccion': 'Marcado Biométrico',
-        'mantenimiento_activo': False,
+        'mantenimiento_activo': True,  # <-- CAMBIADO A TRUE: Bloquea el navbar automáticamente
     }
     return render(request, 'asistencia/marcar.html', context)
 

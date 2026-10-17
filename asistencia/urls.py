@@ -84,7 +84,7 @@ urlpatterns = [
     path('maquinas/exportar/pdf/', views.maquina_exportar_pdf, name='maquina_exportar_pdf'),
     path('maquinas/exportar/excel/', views.maquina_exportar_excel, name='maquina_exportar_excel'),
 
-    # Rutas del Módulo de Marcado de Asistencia
+    # Rutas estructuradas para el Módulo de Marcado
     path('asistencia/marcar/', asistencia_views.mostrar_pantalla_marcado, name='mostrar_marcado'),
     path('asistencia/api/registrar/', asistencia_views.registrar_marcado_tiempo_real, name='api_registrar_marcado'),
 

@@ -1,10 +1,28 @@
 import math
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import date
 from asistencia.models import Personal, Maquina, Asistencia, Incidencia, Corte
 
+# =========================================================================
+# VISTA 1: RENDERIZADO DE LA INTERFAZ (Faltaba añadir aquí tras el resumen)
+# =========================================================================
+def mostrar_pantalla_marcado(request):
+    """
+    Renderiza la interfaz web alineada con el estándar corporativo.
+    """
+    context = {
+        'titulo_seccion': 'Marcado Biométrico',
+        'mantenimiento_activo': False,  # Evita bloquear el navbar
+    }
+    return render(request, 'asistencia/marcar.html', context)
+
+
+# =========================================================================
+# VISTA 2: PROCESAMIENTO EN TIEMPO REAL (LÓGICA EN CASCADA OPTIMIZADA)
+# =========================================================================
 def calcular_distancia(lat1, lon1, lat2, lon2):
     """Fórmula de Haversine para calcular distancia exacta en metros"""
     rad = math.pi / 180
@@ -20,7 +38,6 @@ def registrar_marcado_tiempo_real(request):
         return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
 
     try:
-        # Captura de parámetros desde el JavaScript
         huella_recibida = request.POST.get('huella')
         serie_enviada = request.POST.get('serie_dispositivo')
         lat_capturada = float(request.POST.get('latitud', 0))
@@ -30,28 +47,24 @@ def registrar_marcado_tiempo_real(request):
         hoy = date.today()
         ahora = timezone.now()
 
-        # Obtener el periodo de corte activo para asociar el registro
+        # Obtener el periodo de corte activo
         corte_actual = Corte.objects.filter(f_inicio__lte=hoy, f_final__gte=hoy, procesado=False).first()
         if not corte_actual:
             return JsonResponse({'status': 'error', 'message': 'Falta configurar el Periodo de Corte activo para la fecha de hoy.'}, status=400)
 
-
-        # =========================================================================
+        # -----------------------------------------------------------------
         # PASO 1 EN CASCADA: BÚSQUEDA POR HUELLA EN LA TABLA PERSONAL
-        # =========================================================================
+        # -----------------------------------------------------------------
         empleado = Personal.objects.filter(huella_indice=huella_recibida, condicion=True).first() or \
                    Personal.objects.filter(huella_pulgar=huella_recibida, condicion=True).first()
 
         if not empleado:
-            # OPTIMIZACIÓN CRÍTICA: Obviamos el insert en la base de datos para no consumir recursos.
-            # Solo retornamos la denegación de forma instantánea a la tablet.
+            # OPTIMIZACIÓN ACORDADA: No consume disco si la huella es inválida.
             return JsonResponse({'status': 'invalid', 'message': 'El usuario no existe o se encuentra inactivo en el sistema.'}, status=401)
 
-
-        # =========================================================================
-        # PASO 2 EN CASCADA: VERIFICACIÓN DE SERIE DEL DISPOSITIVO (TABLA MAQUINA)
-        # =========================================================================
-        # Al ser un empleado válido, sí auditamos si marca desde una máquina no autorizada
+        # -----------------------------------------------------------------
+        # PASO 2 EN CASCADA: VERIFICACIÓN DE SERIE (TABLA MAQUINA)
+        # -----------------------------------------------------------------
         maquina_valida = Maquina.objects.filter(serie_dispositivo=serie_enviada, institucion=empleado.institucion).exists()
         
         if not maquina_valida:
@@ -63,17 +76,15 @@ def registrar_marcado_tiempo_real(request):
             )
             return JsonResponse({'status': 'invalid', 'message': 'Dispositivo no autorizado para registrar asistencia en su institución.'}, status=401)
 
-
-        # =========================================================================
+        # -----------------------------------------------------------------
         # PASO 3 EN CASCADA: VALIDACIÓN DE GEOLOCALIZACIÓN (TABLA INSTITUCIONES)
-        # =========================================================================
-        # Calculamos la distancia métrica entre la ubicación capturada y la coordenada ideal de su institución
+        # -----------------------------------------------------------------
         distancia = calcular_distancia(
             float(empleado.institucion.latitud), float(empleado.institucion.longitud),
             lat_capturada, lon_capturada
         )
         
-        if distancia > 50:  # Rango de tolerancia de 50 metros establecido
+        if distancia > 50:
             Incidencia.objects.create(
                 personal=empleado, serie_dispositivo=serie_enviada, latitud=lat_capturada, longitud=lon_capturada,
                 ubicacion_imagen=imagen_foto, motivo_incidencia='GEOLOCALIZACION',
@@ -82,17 +93,14 @@ def registrar_marcado_tiempo_real(request):
             )
             return JsonResponse({'status': 'invalid', 'message': 'Ubicación inválida: Se encuentra fuera del rango geográfico permitido para su institución.'}, status=401)
 
-
-        # =========================================================================
-        # ENTRADA A LA TABLA ASISTENCIA (SI TODO COINCIDIÓ CORRECTAMENTE)
-        # =========================================================================
+        # -----------------------------------------------------------------
+        # REGISTRO EN LA TABLA ASISTENCIA (ÉXITO TOTAL)
+        # -----------------------------------------------------------------
         asistencia_diaria = Asistencia.objects.filter(personal=empleado, fecha=hoy).first()
 
-        # Si el comando de las 00:00 no se ejecutó, creamos el registro base en caliente
         if not asistencia_diaria:
             asistencia_diaria = Asistencia.objects.create(personal=empleado, corte=corte_actual, fecha=hoy)
 
-        # Evaluar si corresponde registrar la Entrada o la Salida
         if not asistencia_diaria.h_entrada:
             asistencia_diaria.h_entrada = ahora
             asistencia_diaria.save()

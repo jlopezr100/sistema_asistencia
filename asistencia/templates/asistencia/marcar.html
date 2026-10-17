@@ -21,33 +21,37 @@
         <canvas id="canvas" style="display:none;"></canvas>
     </div>
 
-    <!-- Zona de la huella adaptada a tus clases nativas -->
-    <!-- Zona de la huella adaptada con soporte de iconos universales -->
-    <div id="contenedor-huella" class="box-huella">
 
-        <!-- Usamos un icono de mano o tarjeta que existe en el 100% de las versiones -->
-        <div class="icon-biometric" style="font-size: 4rem; color: #1F4E78; margin-bottom: 10px;">
-            <i class="fa fa-hand-pointer-o"></i>
+    <!-- Zona de la huella con diseño autónomo garantizado -->
+    <div id="contenedor-huella" class="box-huella">
+        
+        <!-- Elemento gráfico generado 100% por CSS (No requiere librerías) -->
+        <div class="sensor-container">
+            <div class="huella-digital-css">
+                <div class="linea-escaner"></div>
+            </div>
         </div>
 
         <p id="estado-lectura" class="st-pendiente text-uppercase">
             Coloque el dedo en el lector
         </p>
-
+        
         <form id="form-asistencia">
             <input type="hidden" id="latitud" name="latitud">
             <input type="hidden" id="longitud" name="longitud">
-
+            
             <div style="margin-bottom: 20px;">
-                <input type="text" id="huella" name="huella" class="form-input-biometric" placeholder="••••••••"
-                    autocomplete="off" required>
+                <!-- Cambiado a type="password" para ocultar los caracteres enviados -->
+                <input type="password" id="huella" name="huella" class="form-input-biometric" 
+                       placeholder="••••••••" autocomplete="off" required>
             </div>
-
+            
             <button type="button" id="btn-marcar" class="btn-apoyar-dedo">
                 Confirmar Identidad
             </button>
         </form>
     </div>
+
 
     <!-- Notificaciones del sistema embebidas -->
     <div id="mensaje-sistema" class="alert d-none shadow-sm text-center" style="margin-top: 15px;"></div>

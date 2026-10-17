@@ -122,3 +122,47 @@
 .btn-apoyar-dedo:active {
     transform: scale(0.98);
 }
+
+/* --- Gráfico de Huella Digital Autonómo con CSS Puro ojojo--- */
+.sensor-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.huella-digital-css {
+    width: 70px;
+    height: 90px;
+    border: 3px solid #1F4E78;
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+    background: #eef2f7;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(31, 78, 120, 0.2);
+}
+
+/* Efecto visual de líneas concéntricas que simulan el sensor */
+.huella-digital-css::before {
+    content: '';
+    position: absolute;
+    top: 15px; left: 10px; right: 10px; bottom: 15px;
+    border: 3px double #1F4E78;
+    border-radius: 50%;
+}
+
+/* Línea roja interactiva de escaneo en movimiento */
+.linea-escaner {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: #E74C3C;
+    box-shadow: 0 0 8px #E74C3C;
+    animation: escanear 2s infinite ease-in-out;
+}
+
+@keyframes escanear {
+    0% { top: 10%; }
+    50% { top: 85%; }
+    100% { top: 10%; }
+}
+

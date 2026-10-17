@@ -6,7 +6,6 @@
 {% block extra_css %}
 <!-- Inyección de tus estilos unificados en el head de base.html -->
 <link rel="stylesheet" href="{% static 'css/recuadro_huella.css' %}">
-<link rel="stylesheet" href="https://cloudflare.com">
 {% endblock %}
 
 {% block content %}
@@ -40,16 +39,16 @@
             <input type="hidden" id="longitud" name="longitud">
 
             <div style="margin-bottom: 5px;">
-                <!-- Conservamos solo el input que recibirá la lectura del sensor -->
-                <input type="password" id="huella" name="huella" class="form-input-biometric" placeholder="••••••••"
-                    autocomplete="off" required>
+                <!-- Vuelto invisible con opacidad para priorizar solo los mensajes en pantalla -->
+                <input type="password" id="huella" name="huella" 
+                       style="position: absolute; top: -9999px; left: -9999px; opacity: 0;" 
+                       autocomplete="off" required>
             </div>
         </form>
     </div>
 
-
-    <!-- Notificaciones del sistema embebidas -->
-    <div id="mensaje-sistema" class="alert d-none shadow-sm text-center" style="margin-top: 15px;"></div>
+    <!-- Notificaciones del sistema embebidas (Listas para actuar con JS) -->
+    <div id="mensaje-sistema" class="alert d-none shadow-sm text-center" style="margin-top: 15px; font-size: 1.1rem; font-weight: bold; padding: 12px;"></div>
 </div>
 {% endblock %}
 

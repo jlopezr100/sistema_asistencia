@@ -223,23 +223,25 @@ class Corte(models.Model):
         return f"{self.nombre} ({self.f_inicio} al {self.f_final})"
 
 
+# =========================================================================
+# MODELOS OPTIMIZADOS PARA ASISTENCIA E INCIDENCIAS (SOPORTE INDEPENDIENTE)
+# =========================================================================
+
 class Asistencia(models.Model):
     personal = models.ForeignKey(Personal, on_delete=models.PROTECT, related_name='asistencias', verbose_name="Personal")
     fecha = models.DateField(auto_now_add=True, verbose_name="Fecha de Marcado")
     
-    # Usar DateTimeField evita problemas y calcula con precisión minutos de tardanza
     h_entrada = models.DateTimeField(null=True, blank=True, verbose_name="Hora de Entrada Real")
     h_salida = models.DateTimeField(null=True, blank=True, verbose_name="Hora de Salida Real")
     
-    # Vinculación con Catálogos Auxiliares
     falta = models.ForeignKey(Falta, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Falta Asociada")
     tardanza = models.ForeignKey(Tardanza, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tardanza Asociada")
     
     justificado = models.BooleanField(default=False, verbose_name="¿Justificado?")
     descripcion_falta = models.TextField(blank=True, null=True, verbose_name="Observaciones / Justificación")
     
-    # Relación con el periodo de pago
-    corte = models.ForeignKey(Corte, on_delete=models.PROTECT, related_name='asistencias', verbose_name="Periodo de Corte")
+    # PROPUESTA APLICADA: null=True y blank=True liberan el marcado diario de procesos manuales
+    corte = models.ForeignKey(Corte, on_delete=models.SET_NULL, null=True, blank=True, related_name='asistencias', verbose_name="Periodo de Corte")
 
     class Meta:
         db_table = 'asistencia'
@@ -253,25 +255,23 @@ class Asistencia(models.Model):
 
 class Incidencia(models.Model):
     TIPOS_ERROR = [
-        ('HUELLA', 'Huella no coincide / No registrada'),
         ('MAQUINA', 'Dispositivo/Máquina no autorizada para la I.E.'),
         ('GEOLOCALIZACION', 'Fuera del rango geográfico permitido'),
-        ('VARIOS', 'Múltiples inconsistencias de validación'),
     ]
 
     personal = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True, blank=True, related_name='incidencias', verbose_name="Personal Identificado")
     fecha_hora = models.DateTimeField(auto_now_add=True, verbose_name="Fecha y Hora de la Incidencia")
     
-    # Captura exacta de los parámetros enviados por el biométrico/App
     serie_dispositivo = models.CharField(max_length=100, verbose_name="Serie del Dispositivo Utilizado")
     latitud = models.DecimalField(max_digits=10, decimal_places=8, verbose_name="Latitud Capturada")
     longitud = models.DecimalField(max_digits=11, decimal_places=8, verbose_name="Longitud Capturada")
     ubicacion_imagen = models.ImageField(upload_to='media/incidencias/', verbose_name="Captura de Ubicación / Mapa")
     
-    # Control de auditoría
     motivo_incidencia = models.CharField(max_length=20, choices=TIPOS_ERROR, verbose_name="Motivo del Rechazo")
     detalles = models.TextField(blank=True, null=True, verbose_name="Detalle Técnico del Error")
-    corte = models.ForeignKey(Corte, on_delete=models.PROTECT, related_name='incidencias', verbose_name="Periodo de Corte")
+    
+    # PROPUESTA APLICADA: null=True y blank=True para que las incidencias tampoco dependan del corte manual
+    corte = models.ForeignKey(Corte, on_delete=models.SET_NULL, null=True, blank=True, related_name='incidencias', verbose_name="Periodo de Corte")
 
     class Meta:
         db_table = 'incidencia'
@@ -282,4 +282,3 @@ class Incidencia(models.Model):
     def __str__(self):
         id_user = self.personal if self.personal else "Desconocido"
         return f"Incidencia ({self.get_motivo_incidencia_display()}) - {id_user} - {self.fecha_hora.date()}"
-

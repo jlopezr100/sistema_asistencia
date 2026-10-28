@@ -1,14 +1,6 @@
 from django import forms
-from .models import Ugel
-from .models import Cargo
-from .models import Nivel
-from .models import Turno
-from .models import Distrito
-from .models import Institucion
-from .models import Falta, Tardanza
-from .models import Personal
-from .models import Maquina
-
+# Las importaciones de modelos a nivel de cabecera se mantienen limpias para los Meta ModelForms
+from .models import Ugel, Cargo, Nivel, Turno, Distrito, Institucion, Falta, Tardanza, Personal, Maquina
 
 class UgelForm(forms.ModelForm):
     class Meta:
@@ -123,7 +115,8 @@ class DistritoForm(forms.ModelForm):
         nombre = self.cleaned_data.get('nombre')
         if nombre:
             nombre_limpio = nombre.strip()
-            # Verifica duplicados excluyendo el registro actual si se está editando
+            # BLINDAJE: Importación local diferida interna para la validación limpia
+            from .models import Distrito
             queryset = Distrito.objects.filter(nombre__iexact=nombre_limpio)
             if self.instance and self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
@@ -153,13 +146,14 @@ class FaltaForm(forms.ModelForm):
 
     def clean_tipo_falta(self):
         tipo_falta = self.cleaned_data.get('tipo_falta', '').strip()
+        # BLINDAJE: Importación local diferida interna
+        from .models import Falta
         qs = Falta.objects.filter(tipo_falta__iexact=tipo_falta)
         if self.instance and self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
             raise forms.ValidationError("Ya existe un tipo de falta registrado con este nombre.")
         return tipo_falta
-
 
 class TardanzaForm(forms.ModelForm):
     class Meta:
@@ -181,6 +175,8 @@ class TardanzaForm(forms.ModelForm):
 
     def clean_tipo_tardanza(self):
         tipo_tardanza = self.cleaned_data.get('tipo_tardanza', '').strip()
+        # BLINDAJE: Importación local diferida interna
+        from .models import Tardanza
         qs = Tardanza.objects.filter(tipo_tardanza__iexact=tipo_tardanza)
         if self.instance and self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
@@ -188,7 +184,6 @@ class TardanzaForm(forms.ModelForm):
             raise forms.ValidationError("Ya existe un tipo de tardanza registrado con este nombre.")
         return tipo_tardanza
 
-# asistencia/forms.py
 class InstitucionForm(forms.ModelForm):
     class Meta:
         model = Institucion
@@ -197,108 +192,119 @@ class InstitucionForm(forms.ModelForm):
             'codigo_modular': forms.TextInput(attrs={
                 'class': 'form-input-search', 
                 'maxlength': '12', 
-                'placeholder': 'Ej. 1234567',
-                'id': 'id_codigo_modular'
-            }),
-            'nombre': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombre de la I.E.'}),
-            'direccion': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Dirección completa'}),
-            'tolerancia': forms.NumberInput(attrs={'class': 'form-input-search', 'min': '0'}),
-            'turno': forms.Select(attrs={'class': 'form-select'}),
-            'distrito': forms.Select(attrs={'class': 'form-select'}),
-            'latitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-9.12345678'}),
-            'longitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-77.12345678'}),
-            'estado': forms.CheckboxInput(attrs={'style': 'transform: scale(1.3); cursor: pointer;'}),
-        }
+                'placeholder': 'Ej. 1234567', 
+                'id': 'id_codigo_modular' 
+            }), 
+            'nombre': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombre de la I.E.'}), 
+            'direccion': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Dirección completa'}), 
+            'tolerancia': forms.NumberInput(attrs={'class': 'form-input-search', 'min': '0'}), 
+            'turno': forms.Select(attrs={'class': 'form-select'}), 
+            'distrito': forms.Select(attrs={'class': 'form-select'}), 
+            'latitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-9.12345678'}), 
+            'longitud': forms.NumberInput(attrs={'class': 'form-input-search', 'step': 'any', 'placeholder': '-77.12345678'}), 
+            'estado': forms.CheckboxInput(attrs={'style': 'transform: scale(1.3); cursor: pointer;'}), 
+        } 
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['turno'].queryset = Turno.objects.filter(estado=True)
-        self.fields['distrito'].queryset = Distrito.objects.filter(estado=True)
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs) 
+        # BLINDAJE: Evaluación de querysets diferida dentro del ciclo interno init
+        from .models import Turno, Distrito
+        self.fields['turno'].queryset = Turno.objects.filter(estado=True) 
+        self.fields['distrito'].queryset = Distrito.objects.filter(estado=True) 
 
-    def clean_codigo_modular(self):
-        codigo = self.cleaned_data.get('codigo_modular')
-        # Verificar si existe otro registro con el mismo código modular
-        queryset = Institucion.objects.filter(codigo_modular=codigo)
-        if self.instance and self.instance.pk:
-            queryset = queryset.exclude(pk=self.instance.pk)
-            
-        if queryset.exists():
-            raise forms.ValidationError("El Código Modular ya se encuentra registrado.")
-        return codigo
+    def clean_codigo_modular(self): 
+        codigo = self.cleaned_data.get('codigo_modular') 
+        from .models import Institucion
+        queryset = Institucion.objects.filter(codigo_modular=codigo) 
+        if self.instance and self.instance.pk: 
+            queryset = queryset.exclude(pk=self.instance.pk) 
+        
+        if queryset.exists(): 
+            raise forms.ValidationError("El Código Modular ya se encuentra registrado.") 
+        return codigo 
 
-# asistencia/forms.py
-class PersonalForm(forms.ModelForm):
-    class Meta:
-        model = Personal
-        fields = [
+class PersonalForm(forms.ModelForm): 
+    class Meta: 
+        model = Personal 
+        fields = [ 
             'cod_modular', 'dni', 'apellidos', 'nombres', 
-            'h_entrada', 'h_salida', 'dia_descanso', 'condicion',
-            'cargo', 'institucion', 'distrito', 'nivel', 'turno',
-            'huella_indice', 'huella_pulgar'
-        ]
-        widgets = {
-            'cod_modular': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Cód. Modular (12 dígitos)'}),
-            'dni': forms.TextInput(attrs={'class': 'form-input-search', 'maxlength': '8', 'placeholder': 'DNI (8 dígitos)'}),
-            'apellidos': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Apellidos completos'}),
-            'nombres': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombres completos'}),
-            'h_entrada': forms.TimeInput(attrs={'class': 'form-input-search', 'type': 'time'}),
-            'h_salida': forms.TimeInput(attrs={'class': 'form-input-search', 'type': 'time'}),
-            'dia_descanso': forms.Select(attrs={'class': 'form-select'}),
-            'cargo': forms.Select(attrs={'class': 'form-select'}),
-            'institucion': forms.Select(attrs={'class': 'form-select'}),
-            'distrito': forms.Select(attrs={'class': 'form-select'}),
-            'nivel': forms.Select(attrs={'class': 'form-select'}),
-            'turno': forms.Select(attrs={'class': 'form-select'}),
-            'condicion': forms.CheckboxInput(attrs={'style': 'transform: scale(1.3); cursor: pointer;'}),
-            'huella_indice': forms.HiddenInput(attrs={'id': 'id_huella_indice'}),
-            'huella_pulgar': forms.HiddenInput(attrs={'id': 'id_huella_pulgar'}),
-        }
+            'h_entrada', 'h_salida', 'dia_descanso', 'condicion', 
+            'cargo', 'institucion', 'distrito', 'nivel', 'turno', 
+            'huella_indice', 'huella_pulgar' 
+        ] 
+        widgets = { 
+            'cod_modular': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Cód. Modular (12 dígitos)'}), 
+            'dni': forms.TextInput(attrs={'class': 'form-input-search', 'maxlength': '8', 'placeholder': 'DNI (8 dígitos)'}), 
+            'apellidos': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Apellidos completos'}), 
+            'nombres': forms.TextInput(attrs={'class': 'form-input-search', 'placeholder': 'Nombres completos'}), 
+            'h_entrada': forms.TimeInput(attrs={'class': 'form-input-search', 'type': 'time'}), 
+            'h_salida': forms.TimeInput(attrs={'class': 'form-input-search', 'type': 'time'}), 
+            'dia_descanso': forms.Select(attrs={'class': 'form-select'}), 
+            'cargo': forms.Select(attrs={'class': 'form-select'}), 
+            'institucion': forms.Select(attrs={'class': 'form-select'}), 
+            'distrito': forms.Select(attrs={'class': 'form-select'}), 
+            'nivel': forms.Select(attrs={'class': 'form-select'}), 
+            'turno': forms.Select(attrs={'class': 'form-select'}), 
+            'condicion': forms.CheckboxInput(attrs={'style': 'transform: scale(1.3); cursor: pointer;'}), 
+            'huella_indice': forms.HiddenInput(attrs={'id': 'id_huella_indice'}), 
+            'huella_pulgar': forms.HiddenInput(attrs={'id': 'id_huella_pulgar'}), 
+        } 
+
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs) 
+        # BLINDAJE: Evaluación diferida interna para evitar bloqueos del cargador de apps
+        from .models import Cargo, Institucion, Distrito, Nivel, Turno
+        self.fields['cargo'].queryset = Cargo.objects.filter(estado=True) 
+        self.fields['institucion'].queryset = Institucion.objects.filter(estado=True) 
+        self.fields['distrito'].queryset = Distrito.objects.filter(estado=True) 
+        self.fields['nivel'].queryset = Nivel.objects.filter(estado=True) 
+        self.fields['turno'].queryset = Turno.objects.filter(estado=True) 
+
+    def clean_cod_modular(self): 
+        cod = self.cleaned_data.get('cod_modular') 
+        from .models import Personal
+        qs = Personal.objects.filter(cod_modular=cod) 
+        if self.instance and self.instance.pk: 
+            qs = qs.exclude(pk=self.instance.pk) 
+        if qs.exists(): 
+            raise forms.ValidationError("El Código Modular ya se encuentra registrado.") 
+        return cod 
+
+    def clean_dni(self): 
+        dni = self.cleaned_data.get('dni') 
+        from .models import Personal
+        qs = Personal.objects.filter(dni=dni) 
+        if self.instance and self.instance.pk: 
+            qs = qs.exclude(pk=self.instance.pk) 
+        if qs.exists(): 
+            raise forms.ValidationError("El DNI ingresado ya pertenece a otro personal.") 
+        return dni 
+
+class MaquinaForm(forms.ModelForm): 
+    # BLINDAJE: El campo con ChoiceField se define dinámicamente en el constructor init para proteger el ORM
+    institucion = forms.ModelChoiceField( 
+        queryset=None, 
+        empty_label="-- Seleccione una Institución --", 
+        widget=forms.Select(attrs={ 
+            'class': 'form-control', 
+            'style': 'width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #CCC;' 
+        }), 
+        label="Institución Educativa" 
+    ) 
+
+    class Meta: 
+        model = Maquina 
+        fields = ['serie_dispositivo', 'institucion'] 
+        widgets = { 
+            'serie_dispositivo': forms.TextInput(attrs={ 
+                'class': 'form-control', 
+                'readonly': 'readonly', 
+                'style': 'background-color: #E9ECEF; font-weight: bold; padding: 10px; border-radius: 6px; border: 1px solid #CCC;' 
+            }) 
+        } 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['cargo'].queryset = Cargo.objects.filter(estado=True)
-        self.fields['institucion'].queryset = Institucion.objects.filter(estado=True)
-        self.fields['distrito'].queryset = Distrito.objects.filter(estado=True)
-        self.fields['nivel'].queryset = Nivel.objects.filter(estado=True)
-        self.fields['turno'].queryset = Turno.objects.filter(estado=True)
-
-    def clean_cod_modular(self):
-        cod = self.cleaned_data.get('cod_modular')
-        qs = Personal.objects.filter(cod_modular=cod)
-        if self.instance and self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise forms.ValidationError("El Código Modular ya se encuentra registrado.")
-        return cod
-
-    def clean_dni(self):
-        dni = self.cleaned_data.get('dni')
-        qs = Personal.objects.filter(dni=dni)
-        if self.instance and self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise forms.ValidationError("El DNI ingresado ya pertenece a otro personal.")
-        return dni
-
-class MaquinaForm(forms.ModelForm):
-    institucion = forms.ModelChoiceField(
-        queryset=Institucion.objects.all(),
-        empty_label="-- Seleccione una Institución --",
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-            'style': 'width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #CCC;'
-        }),
-        label="Institución Educativa"
-    )
-
-    class Meta:
-        model = Maquina
-        fields = ['serie_dispositivo', 'institucion']
-        widgets = {
-            'serie_dispositivo': forms.TextInput(attrs={
-                'class': 'form-control',
-                'readonly': 'readonly',  # Se deshabilita para evitar edición manual y capturar la real
-                'style': 'background-color: #E9ECEF; font-weight: bold; padding: 10px; border-radius: 6px; border: 1px solid #CCC;'
-            })
-        }
-
+        # Asignación segura diferida del QuerySet de Institución
+        from .models import Institucion
+        self.fields['institucion'].queryset = Institucion.objects.all()

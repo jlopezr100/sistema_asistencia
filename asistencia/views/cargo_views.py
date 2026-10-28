@@ -88,6 +88,8 @@ def cargo_anular(request, pk):
     return redirect('cargo_listar')
 
 def _filtrar_cargos(request):
+    from ..models import Cargo
+    from ..forms import CargoForm
     """Función auxiliar para aplicar los filtros de búsqueda."""
     query = request.GET.get('q', '')
     filtro = request.GET.get('filtro', '')

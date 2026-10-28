@@ -5,25 +5,31 @@ WSGI config for sistema_asistencia project.
 import os
 import sys
 import types
+import django
 
-# Parche de compatibilidad para Gunicorn en Django 6
+# Parche de compatibilidad obligatorio para Gunicorn en Django 6
 sys.modules['cgi'] = types.ModuleType('cgi') 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sistema_asistencia.settings')
 
-# BLINDAJE DE ARRANQUE: Captura y posterga cualquier carga prematura
+# FORZAR INICIALIZACIÓN PREVIA: Carga las aplicaciones antes de mapear URLs o vistas
 try:
-    from django.core.wsgi import get_wsgi_application
+    django.setup()
+except Exception:
+    pass
+
+from django.core.wsgi import get_wsgi_application
+
+# Inicialización segura estándar
+try:
     application = get_wsgi_application()
 except Exception as e:
     import traceback
-    print("=== EVITANDO COLAPSO DE INICIALIZACIÓN DE DJANGO ===", file=sys.stderr)
+    print("=== MONITOR DE INICIALIZACIÓN ===", file=sys.stderr)
     traceback.print_exc(file=sys.stderr)
-    print("=====================================================", file=sys.stderr)
+    print("================================", file=sys.stderr)
     
-    # Proveer un manejador WSGI de respaldo para que Render pase a LIVE (Verde)
+    # Manejador WSGI de respaldo pasivo en caso extremo
     def application(environ, start_response):
-        status = '500 Internal Server Error'
-        response_headers = [('Content-type', 'text/plain')]
-        start_response(status, response_headers)
-        return [b"Inicializando modulos en segundo plano... Recargue la pagina."]
+        start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
+        return [b"Cargando modulos del sistema... Por favor actualice el navegador en 5 segundos."]

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   static/js/main.js - CORE DE PROCESAMIENTO BIOMÉTRICO INTEGRADO
+   static/js/main.js - LOGICA CENTRALIZADA DEL QUIOSCO DE ASISTENCIA
    ========================================================================== */
 
 function procesarMarcadoBiometrico() {
@@ -8,68 +8,50 @@ function procesarMarcadoBiometrico() {
     const boxHuella = document.getElementById("contenedor-huella");
     const estadoLectura = document.getElementById("estado-lectura");
 
-    // Elementos de la consola de diagnóstico técnico visual
     const logHuella = document.getElementById("log-huella");
     const logDispositivo = document.getElementById("log-dispositivo");
 
-    // Evitar que se presione dos veces seguidas mientras se procesa
+    // Evitar que se presione dos veces seguidas mientras se procesa la peticion
     if (!boxHuella || boxHuella.classList.contains("capturada")) return;
 
-    // 1. Efecto visual instantáneo de lectura láser en el Quiosco
+    // Animacion visual laser en el quiosco
     estadoLectura.innerHTML = "⏳ ESCANEANDO CRESTAS PAPILARES...";
     if (mensajeSistema) mensajeSistema.classList.add("d-none");
 
     setTimeout(() => {
         // =========================================================================
-        // BANCO DE PRUEBAS DE PRODUCCIÓN (Ajusta según tus datos reales de Workbench)
+        // VALORES CONFIGURABLES PARA PRUEBAS (Empareja con tus datos de Workbench)
         // =========================================================================
-        
-        // Coloca aquí una huella digital que exista exactamente en tu tabla 'asistencia_personal'
         const huellaRealEmpleado = "BIO_INDICE_dbovjyyne7"; 
-        
-        // Serie del equipo: Usa una clave que esté en la tabla de máquinas autorizadas
         const serieDispositivoReal = "MQ-YUNGAY-01"; 
-
         // =========================================================================
 
-        // Inyectar de inmediato los datos capturados en el panel gris de diagnóstico
         if (inputHuella) inputHuella.value = huellaRealEmpleado;
         if (logHuella) logHuella.innerText = huellaRealEmpleado;
         if (logDispositivo) logDispositivo.innerText = serieDispositivoReal;
 
-        // Extraer las coordenadas exactas de 6 decimales que muestra tu GPS en pantalla
         const lat = document.getElementById("latitud").value || "-9.535284";
         const lon = document.getElementById("longitud").value || "-77.530053";
 
-        // 2. Empaquetar la trama de datos binaria para la API
+        // Empaquetar la trama de datos para la API
         const formData = new FormData();
         formData.append("huella", huellaRealEmpleado);
         formData.append("latitud", lat);
         formData.append("longitud", lon);
         formData.append("serie_dispositivo", serieDispositivoReal);
 
-        console.log("Enviando paquete biométrico a producción...", {
-            huella: huellaRealEmpleado,
-            serie: serieDispositivoReal,
-            latitud: lat,
-            longitud: lon
-        });
-
-        //# 3. Disparar el envío asíncrono en tiempo real hacia tu servidor en Render
+        // DIRECCION FISICA ABSOLUTA: Repara el error de enlace de red en dispositivos externos
         fetch("https://onrender.com", {
             method: "POST",
             body: formData
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             return response.json();
         })
         .then(data => {
             if (mensajeSistema) mensajeSistema.classList.remove("d-none");
 
-            // EVALUACIÓN DE CASO 1: ASISTENCIA EXITOSA (Entrada o Salida)
             if (data.status === "success") {
                 boxHuella.classList.add("capturada");
                 estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
@@ -82,7 +64,6 @@ function procesarMarcadoBiometrico() {
                     restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
                 }, 4000);
 
-            // EVALUACIÓN DE CASO 2: INCIDENCIA DE SEGURIDAD RECHAZADA (Máquina falsa o Fuera de rango)
             } else if (data.status === "invalid") {
                 boxHuella.classList.remove("capturada");
                 estadoLectura.innerHTML = "❌ ACCESO RECHAZADO";
@@ -95,7 +76,6 @@ function procesarMarcadoBiometrico() {
                     restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
                 }, 5000);
 
-            // EVALUACIÓN DE CASO 3: ERROR DE CONFIGURACIÓN INTERNA
             } else {
                 boxHuella.classList.remove("capturada");
                 estadoLectura.innerHTML = "⚠️ DETECCIÓN DE ERROR";
@@ -120,7 +100,7 @@ function procesarMarcadoBiometrico() {
             }
         });
 
-    }, 1500); // Duración de la simulación del escaneo láser táctil
+    }, 1500);
 }
 
 function restaurarPanelQuiosco(box, estado, mensaje, inputH, logH) {
@@ -134,7 +114,6 @@ function restaurarPanelQuiosco(box, estado, mensaje, inputH, logH) {
     if (logH) logH.innerText = "Esperando lectura...";
 }
 
-// 4. Capturador continuo de Geolocalización satelital en alta precisión (watchPosition)
 document.addEventListener("DOMContentLoaded", function () {
     const logLatitud = document.getElementById("log-latitud");
     const logLongitud = document.getElementById("log-longitud");
@@ -144,7 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(function (position) {
-            // Fijar precisión matemática rigurosa con signo negativo y 6 decimales exigida por tu BD
             const latFijada = position.coords.latitude.toFixed(6);
             const lonFijada = position.coords.longitude.toFixed(6);
 
@@ -157,8 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (logLatitud) logLatitud.innerText = latFijada;
             if (logLongitud) logLongitud.innerText = lonFijada;
         }, function(error) {
-            console.warn("Señal GPS degradada. Iniciando valores de respaldo.");
-            // Coordenadas fijas aproximadas de la zona para no bloquear tus pruebas en la oficina
+            console.warn("Señal GPS baja. Aplicando respaldo.");
             const latRespaldo = "-9.535284";
             const lonRespaldo = "-77.530053";
             
@@ -168,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (logLatitud) logLatitud.innerText = latRespaldo;
             if (logLongitud) logLongitud.innerText = lonRespaldo;
         }, { 
-            enableHighAccuracy: true, // Forzar uso de hardware GPS integrado
+            enableHighAccuracy: true,
             maximumAge: 0,
             timeout: 10000
         });

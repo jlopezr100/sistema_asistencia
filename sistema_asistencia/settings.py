@@ -1,113 +1,84 @@
-"""
-Django settings for sistema_asistencia project.
-Optimized and Cleaned for Production Deployment.
-"""
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from datetime import datetime
+from asistencia.models import Personal, Asistencia
 
-from pathlib import Path
-import os
-import dj_database_url
-from dotenv import load_dotenv
+class Command(BaseCommand):
+    help = 'Genera automáticamente las plantillas de asistencia diaria para el personal activo'
 
-# 1. Directorio Base y Carga de Entorno
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+    def add_arguments(self, parser):
+        # Permite pasar una fecha manual por consola: --fecha 2026-10-28
+        parser.add_argument(
+            '--fecha',
+            type=str,
+            help='Fecha simulada en formato YYYY-MM-DD para pruebas',
+        )
 
-# 2. Configuración de Seguridad Crítica
-SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-default')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+    def handle(self, *args, **options):
+        # Si se pasa una fecha por parámetro, la usamos; si no, usamos la fecha local actual de Lima
+        fecha_str = options.get('fecha')
+        if fecha_str:
+            try:
+                hoy_lima = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+                self.stdout.write(self.style.MIGRATE_LABEL(f"=== MODO SIMULACIÓN: Probando con la fecha {hoy_lima} ==="))
+            except ValueError:
+                self.stdout.write(self.style.ERROR("Formato de fecha inválido. Use YYYY-MM-DD."))
+                return
+        else:
+            hoy_lima = timezone.localdate() 
+        
+        # 1. Validar que sea de Lunes a Viernes (0=Lunes, 4=Viernes)
+        if hoy_lima.weekday() > 4:
+            self.stdout.write(self.style.WARNING(f"La fecha {hoy_lima} es fin de semana. No se generan asistencias."))
+            return
 
-# 3. Aplicaciones Instaladas (Estructura Unificada)
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'cloudinary_storage',         # <-- Almacenamiento en la nube antes de staticfiles
-    'django.contrib.staticfiles',
-    'cloudinary',                 # <-- Aplicación Cloudinary
-    'asistencia',                 # <-- Tu aplicación local
-]
-
-# 4. Middleware (WhiteNoise integrado para estilos estáticos)
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-ROOT_URLCONF = 'sistema_asistencia.urls'
-
-# 5. Motor de Plantillas (¡Restaurado el Procesador de Contexto de la UGEL!)
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'asistencia.context_processors.ugel_context', # <-- CRUCIAL PARA MOSTRAR LOS DATOS DE LA UGEL
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'sistema_asistencia.wsgi.application'
-
-# 6. Base de Datos Enlazada con Parche SSL para Aiven
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
-
-if not DEBUG and DATABASES['default'].get('ENGINE') == 'django.db.backends.mysql':
-    DATABASES['default']['OPTIONS'] = {
-        'ssl': {
-            'ssl_mode': 'REQUIRED'
+        # 2. Mapear días con consistencia de mayúsculas
+        dias_map = {
+            0: 'LUNES', 
+            1: 'MARTES', 
+            2: 'MIERCOLES', 
+            3: 'JUEVES', 
+            4: 'VIERNES'
         }
-    }
+        dia_actual_texto = dias_map[hoy_lima.weekday()]
 
-# 7. Validadores de Contraseñas
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
+        # Filtrar personal activo cuyo día de descanso NO sea hoy
+        personal_activo = Personal.objects.filter(
+            condicion=True
+        ).exclude(
+            dia_descanso__iexact=dia_actual_texto
+        )
 
-# 8. Servidor de Almacenamiento Cloudinary para Imágenes Multimedia
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudStorage'
+        if not personal_activo.exists():
+            self.stdout.write(self.style.WARNING(f"No se encontró personal activo asignado para laborar el día ({dia_actual_texto})."))
+            return
 
-# 9. Manejo de Archivos Estáticos (CSS, JS)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+        asistencias_a_crear = []
 
-# 10. Manejo de Archivos de Medios locales (Básicos)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+        # 3. Preparar inserciones masivas evitando duplicados
+        for empleado in personal_activo:
+            asistencia_existe = Asistencia.objects.filter(
+                personal=empleado, 
+                fecha=hoy_lima
+            ).exists()
+            
+            if not asistencia_existe:
+                asistencias_a_crear.append(
+                    Asistencia(
+                        personal=empleado,
+                        fecha=hoy_lima,
+                        h_entrada=None,
+                        h_salida=None,
+                        justificado=False
+                    )
+                )
 
-# 11. Internacionalización e Idioma
-LANGUAGE_CODE = 'es-pe'
-TIME_ZONE = 'America/Lima'
-USE_I18N = True
-USE_TZ = True
+        # Inserción optimizada en un solo query
+        if asistencias_a_crear:
+            Asistencia.objects.bulk_create(asistencias_a_crear)
+            registros_creados = len(asistencias_a_crear)
+            self.stdout.write(self.style.SUCCESS(
+                f"Se crearon exitosamente {registros_creados} registros de asistencia para el día: {hoy_lima}."
+            ))
+        else:
+            self.stdout.write(self.style.WARNING(f"Las plantillas de asistencia para el día {hoy_lima} ya estaban creadas."))

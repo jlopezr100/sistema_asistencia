@@ -1,84 +1,100 @@
-from django.core.management.base import BaseCommand
-from django.utils import timezone
-from datetime import datetime
-from asistencia.models import Personal, Asistencia
+import os
+import dj_database_url
+from pathlib import Path
+from dotenv import load_dotenv
 
-class Command(BaseCommand):
-    help = 'Genera automáticamente las plantillas de asistencia diaria para el personal activo'
+# 1. Rutas Base y Carga de Entorno
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-    def add_arguments(self, parser):
-        # Permite pasar una fecha manual por consola: --fecha 2026-10-28
-        parser.add_argument(
-            '--fecha',
-            type=str,
-            help='Fecha simulada en formato YYYY-MM-DD para pruebas',
-        )
+SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-default-ugel-yungay-2026')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-    def handle(self, *args, **options):
-        # Si se pasa una fecha por parámetro, la usamos; si no, usamos la fecha local actual de Lima
-        fecha_str = options.get('fecha')
-        if fecha_str:
-            try:
-                hoy_lima = datetime.strptime(fecha_str, '%Y-%m-%d').date()
-                self.stdout.write(self.style.MIGRATE_LABEL(f"=== MODO SIMULACIÓN: Probando con la fecha {hoy_lima} ==="))
-            except ValueError:
-                self.stdout.write(self.style.ERROR("Formato de fecha inválido. Use YYYY-MM-DD."))
-                return
-        else:
-            hoy_lima = timezone.localdate() 
-        
-        # 1. Validar que sea de Lunes a Viernes (0=Lunes, 4=Viernes)
-        if hoy_lima.weekday() > 4:
-            self.stdout.write(self.style.WARNING(f"La fecha {hoy_lima} es fin de semana. No se generan asistencias."))
-            return
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
-        # 2. Mapear días con consistencia de mayúsculas
-        dias_map = {
-            0: 'LUNES', 
-            1: 'MARTES', 
-            2: 'MIERCOLES', 
-            3: 'JUEVES', 
-            4: 'VIERNES'
-        }
-        dia_actual_texto = dias_map[hoy_lima.weekday()]
+# 2. Aplicaciones del Proyecto (Conexión Limpia con Cloudinary y tu Módulo)
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'cloudinary_storage', # <-- Antes de staticfiles obligatoriamente
+    'django.contrib.staticfiles',
+    'cloudinary',         # <-- Conectores en la nube
+    'asistencia',         # Tu aplicación principal del Control Biométrico
+]
 
-        # Filtrar personal activo cuyo día de descanso NO sea hoy
-        personal_activo = Personal.objects.filter(
-            condicion=True
-        ).exclude(
-            dia_descanso__iexact=dia_actual_texto
-        )
+# 3. Capa Middleware (Optimizado para Servir CSS/JS en Render con WhiteNoise)
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- Posición de fábrica requerida
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
-        if not personal_activo.exists():
-            self.stdout.write(self.style.WARNING(f"No se encontró personal activo asignado para laborar el día ({dia_actual_texto})."))
-            return
+ROOT_URLCONF = 'sistema_asistencia.urls'
 
-        asistencias_a_crear = []
+# 4. Motor de Plantillas HTML
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
-        # 3. Preparar inserciones masivas evitando duplicados
-        for empleado in personal_activo:
-            asistencia_existe = Asistencia.objects.filter(
-                personal=empleado, 
-                fecha=hoy_lima
-            ).exists()
-            
-            if not asistencia_existe:
-                asistencias_a_crear.append(
-                    Asistencia(
-                        personal=empleado,
-                        fecha=hoy_lima,
-                        h_entrada=None,
-                        h_salida=None,
-                        justificado=False
-                    )
-                )
+WSGI_APPLICATION = 'sistema_asistencia.wsgi.application'
 
-        # Inserción optimizada en un solo query
-        if asistencias_a_crear:
-            Asistencia.objects.bulk_create(asistencias_a_crear)
-            registros_creados = len(asistencias_a_crear)
-            self.stdout.write(self.style.SUCCESS(
-                f"Se crearon exitosamente {registros_creados} registros de asistencia para el día: {hoy_lima}."
-            ))
-        else:
-            self.stdout.write(self.style.WARNING(f"Las plantillas de asistencia para el día {hoy_lima} ya estaban creadas."))
+# 5. Configuración Dinámica de la Base de Datos (Aiven MySQL)
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
+
+# 6. Almacenamiento Remoto de Imágenes en Cloudinary (Fotos de Incidencias)
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudErrorImageStorage'
+
+# 7. Sincronización Estricta de Localización y Zona Horaria (América/Lima)
+LANGUAGE_CODE = 'es-pe'
+TIME_ZONE = 'America/Lima'
+USE_I18N = True
+USE_TZ = True
+
+# 8. Validadores de Seguridad de Contraseñas de Fábrica
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# 9. Control y Almacenamiento Estricto de Archivos Estáticos
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -22,12 +22,14 @@ INSTALLED_APPS = [
     'cloudinary_storage', # <-- Antes de staticfiles obligatoriamente
     'django.contrib.staticfiles',
     'cloudinary',         # <-- Conectores en la nube
+    'corsheaders',  # <-- COMPONENTE AGREGADO AQUÍ
     'asistencia',         # Tu aplicación principal del Control Biométrico
 ]
 
 # 3. Capa Middleware (Optimizado para Servir CSS/JS en Render con WhiteNoise)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # <-- COMPONENTE AGREGADO AQUÍ
     'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- Posición de fábrica requerida
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

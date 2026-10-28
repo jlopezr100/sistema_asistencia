@@ -1,7 +1,8 @@
-from .inicio_views import *
-from .nosotros_views import *
-from .ugel_views import ugel_mantenimiento
+# CORREGIDO: Importaciones explícitas y controladas (Sin usar asteriscos)
+from .inicio_views import inicio_index
+from .nosotros_views import nosotros
 
+from .ugel_views import ugel_mantenimiento
 from .cargo_views import cargo_listar, cargo_crear, cargo_editar, cargo_anular, cargo_reporte_pdf, cargo_exportar_excel
 from .nivel_views import nivel_listar, nivel_crear, nivel_editar, nivel_anular, nivel_reporte_pdf, nivel_exportar_excel
 from .turno_views import turno_listar, turno_crear, turno_editar, turno_anular, turno_reporte_pdf, turno_exportar_excel
@@ -10,10 +11,10 @@ from .falta_views import falta_listar, falta_crear, falta_editar, falta_anular, 
 from .tardanza_views import tardanza_listar, tardanza_crear, tardanza_editar, tardanza_anular, tardanza_reporte_pdf, tardanza_exportar_excel
 
 # Instituciones
-from .instituciones_views import institucion_listar, institucion_crear, institucion_editar, institucion_anular, institucion_reporte_pdf,institucion_exportar_excel, verificar_codigo_modular
+from .instituciones_views import institucion_listar, institucion_crear, institucion_editar, institucion_anular, institucion_reporte_pdf, institucion_exportar_excel, verificar_codigo_modular
 
+# Personal
 from .personal_views import personal_listar, personal_crear, personal_editar, personal_anular, personal_reporte_pdf, personal_exportar_excel, verificar_unicidad_personal
 
+# Máquinas (Dispositivos Quioscos)
 from .maquinas_views import maquina_listar, maquina_crear, maquina_editar, maquina_eliminar, verificar_unicidad_maquina, maquina_exportar_excel, maquina_exportar_pdf
-
-#from asistencia.views import asistencia_views

@@ -5,12 +5,17 @@ WSGI config for sistema_asistencia project.
 import os
 import sys
 import types
-from django.core.wsgi import get_wsgi_application
+import django
 
 # Parche de compatibilidad obligatorio para Gunicorn en Django 6
 sys.modules['cgi'] = types.ModuleType('cgi') 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sistema_asistencia.settings')
 
-# Dejar que Django tome el control total del manejo y renderizado de excepciones en pantalla
+# PASO CLAVE: Forzar a Django a cargar el registro de apps antes de compilar las vistas
+django.setup()
+
+from django.core.wsgi import get_wsgi_application
+
+# Dejar que get_wsgi_application cargue el enrutador de forma nativa
 application = get_wsgi_application()

@@ -13,11 +13,9 @@ from django.db.models import Q, ProtectedError
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
 
-from ..models import Personal
-from ..forms import PersonalForm
-
-
 def _filtrar_personal(request):
+    from ..models import Personal
+    from ..forms import PersonalForm
     query = request.GET.get('q', '').strip()
     filtro = request.GET.get('filtro', '')
     personal = Personal.objects.select_related('cargo', 'institucion', 'distrito', 'nivel', 'turno').all().order_by('-id')
@@ -57,6 +55,8 @@ def personal_listar(request):
 
 
 def personal_crear(request):
+    from ..models import Personal
+    from ..forms import PersonalForm
     if request.method == 'POST':
         form = PersonalForm(request.POST)
         if form.is_valid():
@@ -75,6 +75,8 @@ def personal_crear(request):
 
 
 def personal_editar(request, pk):
+    from ..models import Personal
+    from ..forms import PersonalForm
     persona = get_object_or_404(Personal, pk=pk)
     if request.method == 'POST':
         form = PersonalForm(request.POST, instance=persona)
@@ -95,6 +97,8 @@ def personal_editar(request, pk):
 
 
 def personal_anular(request, pk):
+    from ..models import Personal
+    from ..forms import PersonalForm
     if request.method == 'POST':
         persona = get_object_or_404(Personal, pk=pk)
         try:
@@ -110,6 +114,8 @@ def personal_anular(request, pk):
 
 # Validaciones en tiempo real
 def verificar_unicidad_personal(request):
+    from ..models import Personal
+    from ..forms import PersonalForm
     campo = request.GET.get('campo', '')
     valor = request.GET.get('valor', '').strip()
     persona_id = request.GET.get('id', None)

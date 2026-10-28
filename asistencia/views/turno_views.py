@@ -11,11 +11,9 @@ from django.core.paginator import Paginator
 from django.db.models import ProtectedError
 from django.db import IntegrityError
 
-from ..models import Turno
-from ..forms import TurnoForm
-
-
 def _filtrar_turnos(request):
+    from ..models import Turno
+    from ..forms import TurnoForm
     query = request.GET.get('q', '')
     filtro = request.GET.get('filtro', '')
     turnos = Turno.objects.all().order_by('-id')
@@ -50,6 +48,8 @@ def turno_listar(request):
 
 
 def turno_crear(request):
+    from ..models import Turno
+    from ..forms import TurnoForm
     if request.method == 'POST':
         form = TurnoForm(request.POST)
         if form.is_valid():
@@ -68,6 +68,8 @@ def turno_crear(request):
 
 
 def turno_editar(request, pk):
+    from ..models import Turno
+    from ..forms import TurnoForm
     turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
         form = TurnoForm(request.POST, instance=turno)
@@ -87,6 +89,8 @@ def turno_editar(request, pk):
 
 
 def turno_anular(request, pk):
+    from ..models import Turno
+    from ..forms import TurnoForm
     if request.method == 'POST':
         turno = get_object_or_404(Turno, pk=pk)
         try:

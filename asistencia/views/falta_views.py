@@ -11,10 +11,9 @@ from django.core.paginator import Paginator
 from django.db.models import ProtectedError
 from django.db import IntegrityError
 
-from ..models import Falta
-from ..forms import FaltaForm
-
 def _filtrar_faltas(request):
+    from ..models import Falta
+    from ..forms import FaltaForm
     query = request.GET.get('q', '')
     filtro = request.GET.get('filtro', '')
     faltas = Falta.objects.all().order_by('-id')
@@ -45,6 +44,8 @@ def falta_listar(request):
     return render(request, 'faltas/listar.html', context)
 
 def falta_crear(request):
+    from ..models import Falta
+    from ..forms import FaltaForm
     if request.method == 'POST':
         form = FaltaForm(request.POST)
         if form.is_valid():
@@ -62,6 +63,8 @@ def falta_crear(request):
     return render(request, 'faltas/form.html', context)
 
 def falta_editar(request, pk):
+    from ..models import Falta
+    from ..forms import FaltaForm
     falta = get_object_or_404(Falta, pk=pk)
     if request.method == 'POST':
         form = FaltaForm(request.POST, instance=falta)
@@ -80,6 +83,8 @@ def falta_editar(request, pk):
     return render(request, 'faltas/form.html', context)
 
 def falta_anular(request, pk):
+    from ..models import Falta
+    from ..forms import FaltaForm
     if request.method == 'POST':
         falta = get_object_or_404(Falta, pk=pk)
         try:

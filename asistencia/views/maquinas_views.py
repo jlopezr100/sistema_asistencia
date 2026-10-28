@@ -11,7 +11,6 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q
 from asistencia.models import Maquina, Institucion
-from ..forms import MaquinaForm
 
 # 1. Listado (Apunta a listar.html)
 def maquina_listar(request):
@@ -41,6 +40,7 @@ def maquina_listar(request):
     })
 
 def maquina_crear(request):
+    from ..forms import MaquinaForm
     if request.method == 'POST':
         form = MaquinaForm(request.POST)
         if form.is_valid():
@@ -57,6 +57,7 @@ def maquina_crear(request):
     })
 
 def maquina_editar(request, pk):
+    from ..forms import MaquinaForm
     maquina = get_object_or_404(Maquina, pk=pk)
     if request.method == 'POST':
         form = MaquinaForm(request.POST, instance=maquina)

@@ -11,10 +11,10 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import ProtectedError
 from django.db import IntegrityError
-from ..models import Nivel
-from ..forms import NivelForm
 
 def _filtrar_niveles(request):
+    from ..models import Nivel
+    from ..forms import NivelForm
     """Función auxiliar para filtrar niveles según búsqueda y estado."""
     query = request.GET.get('q', '')
     filtro = request.GET.get('filtro', '')
@@ -50,6 +50,8 @@ def nivel_listar(request):
 
 
 def nivel_crear(request):
+    from ..models import Nivel
+    from ..forms import NivelForm
     if request.method == 'POST':
         form = NivelForm(request.POST)
         if form.is_valid():
@@ -68,6 +70,8 @@ def nivel_crear(request):
 
 
 def nivel_editar(request, pk):
+    from ..models import Nivel
+    from ..forms import NivelForm
     nivel = get_object_or_404(Nivel, pk=pk)
     if request.method == 'POST':
         form = NivelForm(request.POST, instance=nivel)
@@ -87,6 +91,8 @@ def nivel_editar(request, pk):
 
 
 def nivel_anular(request, pk):
+    from ..models import Nivel
+    from ..forms import NivelForm
     if request.method == 'POST':
         nivel = get_object_or_404(Nivel, pk=pk)
         try:

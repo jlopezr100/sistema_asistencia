@@ -11,11 +11,9 @@ from django.core.paginator import Paginator
 from django.db.models import ProtectedError
 from django.db import IntegrityError
 
-from ..models import Distrito
-from ..forms import DistritoForm
-
-
 def _filtrar_distritos(request):
+    from ..models import Distrito
+    from ..forms import DistritoForm
     """Función auxiliar para filtrar distritos por búsqueda y estado."""
     query = request.GET.get('q', '')
     filtro = request.GET.get('filtro', '')
@@ -51,6 +49,8 @@ def distrito_listar(request):
 
 
 def distrito_crear(request):
+    from ..models import Distrito
+    from ..forms import DistritoForm
     if request.method == 'POST':
         form = DistritoForm(request.POST)
         if form.is_valid():
@@ -69,6 +69,8 @@ def distrito_crear(request):
 
 
 def distrito_editar(request, pk):
+    from ..models import Distrito
+    from ..forms import DistritoForm
     distrito = get_object_or_404(Distrito, pk=pk)
     if request.method == 'POST':
         form = DistritoForm(request.POST, instance=distrito)
@@ -88,6 +90,8 @@ def distrito_editar(request, pk):
 
 
 def distrito_anular(request, pk):
+    from ..models import Distrito
+    from ..forms import DistritoForm
     if request.method == 'POST':
         distrito = get_object_or_404(Distrito, pk=pk)
         try:

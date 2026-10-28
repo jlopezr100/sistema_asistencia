@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from ..models import Ugel
-from ..forms import UgelForm
 
 def ugel_mantenimiento(request):
+    from ..models import Ugel
+    from ..forms import UgelForm
     ugel_obj = Ugel.objects.first()
     
     if request.method == 'POST':

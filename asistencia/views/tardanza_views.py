@@ -11,10 +11,9 @@ from django.core.paginator import Paginator
 from django.db.models import ProtectedError
 from django.db import IntegrityError
 
-from ..models import Tardanza
-from ..forms import TardanzaForm
-
 def _filtrar_tardanzas(request):
+    from ..models import Tardanza
+    from ..forms import TardanzaForm
     query = request.GET.get('q', '')
     filtro = request.GET.get('filtro', '')
     tardanzas = Tardanza.objects.all().order_by('-id')
@@ -45,6 +44,8 @@ def tardanza_listar(request):
     return render(request, 'tardanzas/listar.html', context)
 
 def tardanza_crear(request):
+    from ..models import Tardanza
+    from ..forms import TardanzaForm
     if request.method == 'POST':
         form = TardanzaForm(request.POST)
         if form.is_valid():
@@ -62,6 +63,8 @@ def tardanza_crear(request):
     return render(request, 'tardanzas/form.html', context)
 
 def tardanza_editar(request, pk):
+    from ..models import Tardanza
+    from ..forms import TardanzaForm
     tardanza = get_object_or_404(Tardanza, pk=pk)
     if request.method == 'POST':
         form = TardanzaForm(request.POST, instance=tardanza)
@@ -80,6 +83,8 @@ def tardanza_editar(request, pk):
     return render(request, 'tardanzas/form.html', context)
 
 def tardanza_anular(request, pk):
+    from ..models import Tardanza
+    from ..forms import TardanzaForm
     if request.method == 'POST':
         tardanza = get_object_or_404(Tardanza, pk=pk)
         try:

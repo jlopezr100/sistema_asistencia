@@ -11,8 +11,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import ProtectedError
 from django.db import IntegrityError
-from ..models import Cargo
-from ..forms import CargoForm
+#from ..models import Cargo
+#from ..forms import CargoForm
 
 def cargo_listar(request):
     cargos = _filtrar_cargos(request)
@@ -33,6 +33,8 @@ def cargo_listar(request):
     return render(request, 'cargos/listar.html', context)
 
 def cargo_crear(request):
+    from ..models import Cargo
+    from ..forms import CargoForm
     if request.method == 'POST':
         form = CargoForm(request.POST)
         if form.is_valid():
@@ -49,6 +51,8 @@ def cargo_crear(request):
     return render(request, 'cargos/crear.html', context)
 
 def cargo_editar(request, pk):
+    from ..models import Cargo
+    from ..forms import CargoForm
     cargo = get_object_or_404(Cargo, pk=pk)
     if request.method == 'POST':
         form = CargoForm(request.POST, instance=cargo)

@@ -12,11 +12,9 @@ from django.core.paginator import Paginator
 from django.db.models import ProtectedError, Q
 from django.db import IntegrityError
 
-from ..models import Institucion
-from ..forms import InstitucionForm
-
-
 def verificar_codigo_modular(request):
+    from ..models import Institucion
+    from ..forms import InstitucionForm
     codigo = request.GET.get('codigo', '').strip()
     inst_id = request.GET.get('id', None)
     
@@ -27,6 +25,8 @@ def verificar_codigo_modular(request):
     return JsonResponse({'existe': exists.exists()})
 
 def _filtrar_instituciones(request):
+    from ..models import Institucion
+    from ..forms import InstitucionForm
     query = request.GET.get('q', '').strip()
     filtro = request.GET.get('filtro', '')
     instituciones = Institucion.objects.select_related('turno', 'distrito').all().order_by('-id')
@@ -66,6 +66,8 @@ def institucion_listar(request):
 
 
 def institucion_crear(request):
+    from ..models import Institucion
+    from ..forms import InstitucionForm
     if request.method == 'POST':
         form = InstitucionForm(request.POST)
         if form.is_valid():
@@ -83,6 +85,8 @@ def institucion_crear(request):
     return render(request, 'instituciones/form.html', context)
 
 def institucion_editar(request, pk):
+    from ..models import Institucion
+    from ..forms import InstitucionForm
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == 'POST':
         form = InstitucionForm(request.POST, instance=institucion)
@@ -103,6 +107,8 @@ def institucion_editar(request, pk):
 
 
 def institucion_anular(request, pk):
+    from ..models import Institucion
+    from ..forms import InstitucionForm
     if request.method == 'POST':
         institucion = get_object_or_404(Institucion, pk=pk)
         try:

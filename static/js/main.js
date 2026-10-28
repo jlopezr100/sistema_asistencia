@@ -56,7 +56,7 @@ function procesarMarcadoBiometrico() {
         });
 
         //# 3. Disparar el envío asíncrono en tiempo real hacia tu servidor en Render
-        fetch("/asistencia/api/registrar/", {
+        fetch("https://onrender.com", {
             method: "POST",
             body: formData
         })

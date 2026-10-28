@@ -1,7 +1,3 @@
-/* ==========================================================================
-   static/css/recuadro_huella.css - VERSIÓN ULTRA-MANEJABLE
-   ========================================================================== */
-
 /* Contenedor Principal en la Pantalla */
 .mantenimiento-container {
     background: #ffffff;
@@ -123,7 +119,7 @@
     transform: scale(0.98);
 }
 
-/* --- Gráfico de Huella Digital Autonómo con CSS Puro ojojo--- */
+/* --- Gráfico de Huella Digital Autonómo con CSS Puro --- */
 .sensor-container {
     display: flex;
     justify-content: center;
@@ -141,7 +137,6 @@
     box-shadow: inset 0 0 10px rgba(31, 78, 120, 0.2);
 }
 
-/* Efecto visual de líneas concéntricas que simulan el sensor */
 .huella-digital-css::before {
     content: '';
     position: absolute;
@@ -150,7 +145,7 @@
     border-radius: 50%;
 }
 
-/* Línea roja interactiva de escaneo en movimiento */
+/* Línea láser de escaneo en movimiento */
 .linea-escaner {
     position: absolute;
     width: 100%;
@@ -165,4 +160,3 @@
     50% { top: 85%; }
     100% { top: 10%; }
 }
-

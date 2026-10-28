@@ -4,30 +4,39 @@ function procesarMarcadoBiometrico() {
     const boxHuella = document.getElementById("contenedor-huella");
     const estadoLectura = document.getElementById("estado-lectura");
 
-    // Elementos de la consola de diagnóstico
     const logHuella = document.getElementById("log-huella");
+    const logDispositivo = document.getElementById("log-dispositivo");
 
     if (!boxHuella || boxHuella.classList.contains("capturada")) return;
 
-    estadoLectura.innerHTML = "⏳ PROCESANDO HUELLA...";
+    estadoLectura.innerHTML = "⏳ ESCANEANDO CRESTAS PAPILARES...";
     if (mensajeSistema) mensajeSistema.classList.add("d-none");
 
     setTimeout(() => {
-        // Clonamos tu formato de hash nativo de la tabla Personal
-        const tokenHuella = "BIO_INDICE_" + Math.random().toString(36).substring(2, 12).toUpperCase();
-        if (inputHuella) inputHuella.value = tokenHuella;
+        // =========================================================================
+        // BANCO DE VALORES CONFIGURABLES PARA PRUEBAS TÉCNICAS
+        // =========================================================================
+        
+        // Huella 1 de tu Workbench: "BIO_INDICE_dbovjyyne7" 
+        const huellaPrueba = "BIO_INDICE_dbovjyyne7"; 
+        
+        // Serie del hardware: Usa una que exista en tu tabla 'maquina' de Workbench
+        const serieDispositivoPrueba = "MQ-YUNGAY-01"; 
 
-        // Imprimir token de huella generado en la consola de diagnóstico
-        if (logHuella) logHuella.innerText = tokenHuella;
+        // =========================================================================
 
-        const lat = document.getElementById("latitud").value || "-9.530000";
-        const lon = document.getElementById("longitud").value || "-77.530000";
+        if (inputHuella) inputHuella.value = huellaPrueba;
+        if (logHuella) logHuella.innerText = huellaPrueba;
+        if (logDispositivo) logDispositivo.innerText = serieDispositivoPrueba;
+
+        const lat = document.getElementById("latitud").value || "-9.138472";
+        const lon = document.getElementById("longitud").value || "-77.743911";
 
         const formData = new FormData();
-        formData.append("huella", tokenHuella);
+        formData.append("huella", huellaPrueba);
         formData.append("latitud", lat);
         formData.append("longitud", lon);
-        formData.append("serie_dispositivo", "PC-LOCAL-NAVEGADOR");
+        formData.append("serie_dispositivo", serieDispositivoPrueba);
 
         fetch("/asistencia/api/registrar/", {
             method: "POST",
@@ -38,6 +47,7 @@ function procesarMarcadoBiometrico() {
             if (mensajeSistema) mensajeSistema.classList.remove("d-none");
 
             if (data.status === "success") {
+                // Éxito: Activa la animación del archivo recuadro_huella.css
                 boxHuella.classList.add("capturada");
                 estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
                 estadoLectura.style.color = "#27AE60";
@@ -46,50 +56,64 @@ function procesarMarcadoBiometrico() {
                 mensajeSistema.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
 
                 setTimeout(() => {
-                    boxHuella.classList.remove("capturada");
-                    estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
-                    estadoLectura.style.color = "#1F4E78";
-                    mensajeSistema.classList.add("d-none");
-                    if (inputHuella) inputHuella.value = "";
-                    if (logHuella) logHuella.innerText = "Esperando lectura...";
-                }, 3500);
+                    restaurarEstadoQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
+                }, 4000);
 
             } else {
+                // Denegado (Mala geolocalización o dispositivo inválido)
                 boxHuella.classList.remove("capturada");
-                estadoLectura.innerHTML = "❌ ACCESO DENEGADO";
+                estadoLectura.innerHTML = "❌ ACCESO RECHAZADO";
                 estadoLectura.style.color = "#E74C3C";
 
-                mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
-                mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> ${data.message}`;
+                if (data.status === "invalid") {
+                    mensajeSistema.className = "alert alert-warning text-center font-weight-bold shadow-sm";
+                    mensajeSistema.innerHTML = `<i class="fas fa-exclamation-triangle"></i> RECHAZADO: ${data.message}`;
+                } else {
+                    mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+                    mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> ERROR: ${data.message}`;
+                }
 
                 setTimeout(() => {
-                    estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
-                    estadoLectura.style.color = "#1F4E78";
-                    mensajeSistema.classList.add("d-none");
-                    if (inputHuella) inputHuella.value = "";
-                    if (logHuella) logHuella.innerText = "Esperando lectura...";
-                }, 4000);
+                    restaurarEstadoQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
+                }, 5000);
             }
         })
         .catch(error => {
-            estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
+            console.error("Fallo de canal de red:", error);
+            estadoLectura.innerHTML = "❌ ERROR DE CONECTIVIDAD";
+            estadoLectura.style.color = "#E74C3C";
             if (mensajeSistema) {
                 mensajeSistema.classList.remove("d-none");
-                mensajeSistema.className = "alert alert-danger text-center font-weight-bold";
-                mensajeSistema.innerHTML = "⚠️ Error de comunicación con el servidor.";
+                mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+                mensajeSistema.innerHTML = "⚠️ Canal de enlace inestable con la central de la UGEL.";
             }
         });
 
-    }, 1500);
+    }, 1200);
 }
 
+function restaurarEstadoQuiosco(box, estado, mensaje, inputH, logH) {
+    if (box) box.classList.remove("capturada");
+    if (estado) {
+        estado.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
+        estado.style.color = "#1F4E78";
+    }
+    if (mensaje) mensaje.classList.add("d-none");
+    if (inputH) inputH.value = "";
+    if (logH) logH.innerText = "Esperando lectura...";
+}
+
+// Inicializador de geolocalización de precisión por hardware
 document.addEventListener("DOMContentLoaded", function () {
     const logLatitud = document.getElementById("log-latitud");
     const logLongitud = document.getElementById("log-longitud");
+    const logDispositivo = document.getElementById("log-dispositivo");
+
+    if (logDispositivo) logDispositivo.innerText = "SISTEMA-WEB-NAVEGADOR";
 
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(function (position) {
-            // Aseguramos que se guarden y muestren con signo negativo y exactamente 6 decimales
+            // Conversión matemática estricta a 6 decimales requerida por la base de datos
             const latFijada = position.coords.latitude.toFixed(6);
             const lonFijada = position.coords.longitude.toFixed(6);
 
@@ -99,12 +123,22 @@ document.addEventListener("DOMContentLoaded", function () {
             if (latInput) latInput.value = latFijada;
             if (lonInput) lonInput.value = lonFijada;
 
-            // Imprimir de inmediato en el panel visual gris
             if (logLatitud) logLatitud.innerText = latFijada;
             if (logLongitud) logLongitud.innerText = lonFijada;
         }, function(error) {
-            if (logLatitud) logLatitud.innerText = "-9.530000 (Simulado)";
-            if (logLongitud) logLongitud.innerText = "-77.530000 (Simulado)";
-        }, { enableHighAccuracy: true });
+            console.warn("Señal GPS degradada. Iniciando valores de respaldo.");
+            const latRespaldo = "-9.138472";
+            const lonRespaldo = "-77.743911";
+            
+            document.getElementById("latitud").value = latRespaldo;
+            document.getElementById("longitud").value = lonRespaldo;
+
+            if (logLatitud) logLatitud.innerText = latRespaldo + " (UGEL Simulado)";
+            if (logLongitud) logLongitud.innerText = lonRespaldo + " (UGEL Simulado)";
+        }, { 
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 10000
+        });
     }
 });

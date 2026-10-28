@@ -16,4 +16,4 @@ from .personal_views import personal_listar, personal_crear, personal_editar, pe
 
 from .maquinas_views import maquina_listar, maquina_crear, maquina_editar, maquina_eliminar, verificar_unicidad_maquina, maquina_exportar_excel, maquina_exportar_pdf
 
-from asistencia.views import asistencia_views
+#from asistencia.views import asistencia_views

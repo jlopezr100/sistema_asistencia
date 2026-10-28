@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import date
-from asistencia.models import Personal, Maquina, Asistencia, Incidencia, Corte
+#from asistencia.models import Personal, Maquina, Asistencia, Incidencia, Corte
 
 def mostrar_pantalla_marcado(request):
     """
@@ -27,6 +27,7 @@ def calcular_distancia(lat1, lon1, lat2, lon2):
 
 @csrf_exempt
 def registrar_marcado_tiempo_real(request):
+    from asistencia.models import Personal, Maquina, Asistencia, Incidencia, Corte
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
 

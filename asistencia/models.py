@@ -254,31 +254,64 @@ class Asistencia(models.Model):
 
 
 class Incidencia(models.Model):
-    TIPOS_ERROR = [
-        ('MAQUINA', 'Dispositivo/Máquina no autorizada para la I.E.'),
-        ('GEOLOCALIZACION', 'Fuera del rango geográfico permitido'),
-    ]
+  TIPOS_ERROR = [
+      ('HUELLA', 'Huella dactilar no reconocida o personal inactivo'),
+      ('MAQUINA', 'Dispositivo/Máquina no autorizada para la I.E.'),
+      ('GEOLOCALIZACION', 'Fuera del rango geográfico permitido'),
+  ]
+  personal = models.ForeignKey(
+      Personal,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      related_name='incidencias',
+      verbose_name='Personal Identificado',
+  )
+  fecha_hora = models.DateTimeField(
+      auto_now_add=True, verbose_name='Fecha y Hora de la Incidencia'
+  )
 
-    personal = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True, blank=True, related_name='incidencias', verbose_name="Personal Identificado")
-    fecha_hora = models.DateTimeField(auto_now_add=True, verbose_name="Fecha y Hora de la Incidencia")
-    
-    serie_dispositivo = models.CharField(max_length=100, verbose_name="Serie del Dispositivo Utilizado")
-    latitud = models.DecimalField(max_digits=10, decimal_places=8, verbose_name="Latitud Capturada")
-    longitud = models.DecimalField(max_digits=11, decimal_places=8, verbose_name="Longitud Capturada")
-    ubicacion_imagen = models.ImageField(upload_to='media/incidencias/', verbose_name="Captura de Ubicación / Mapa")
-    
-    motivo_incidencia = models.CharField(max_length=20, choices=TIPOS_ERROR, verbose_name="Motivo del Rechazo")
-    detalles = models.TextField(blank=True, null=True, verbose_name="Detalle Técnico del Error")
-    
-    # PROPUESTA APLICADA: null=True y blank=True para que las incidencias tampoco dependan del corte manual
-    corte = models.ForeignKey(Corte, on_delete=models.SET_NULL, null=True, blank=True, related_name='incidencias', verbose_name="Periodo de Corte")
+  serie_dispositivo = models.CharField(
+      max_length=100, verbose_name='Serie del Dispositivo Utilizado'
+  )
+  latitud = models.DecimalField(
+      max_digits=10, decimal_places=8, verbose_name='Latitud Capturada'
+  )
+  longitud = models.DecimalField(
+      max_digits=11, decimal_places=8, verbose_name='Longitud Capturada'
+  )
+  ubicacion_imagen = models.ImageField(
+      upload_to='media/incidencias/',
+      null=True,
+      blank=True,
+      verbose_name='Captura de Ubicación / Mapa',
+  )
 
-    class Meta:
-        db_table = 'incidencia'
-        verbose_name = 'Incidencia de Asistencia'
-        verbose_name_plural = 'Incidencias de Asistencia'
-        ordering = ['-fecha_hora']
+  motivo_incidencia = models.CharField(
+      max_length=20, choices=TIPOS_ERROR, verbose_name='Motivo del Rechazo'
+  )
+  detalles = models.TextField(
+      blank=True, null=True, verbose_name='Detalle Técnico del Error'
+  )
 
-    def __str__(self):
-        id_user = self.personal if self.personal else "Desconocido"
-        return f"Incidencia ({self.get_motivo_incidencia_display()}) - {id_user} - {self.fecha_hora.date()}"
+  corte = models.ForeignKey(
+      Corte,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      related_name='incidencias',
+      verbose_name='Periodo de Corte',
+  )
+
+  class Meta:
+    db_table = 'incidencia'
+    verbose_name = 'Incidencia de Asistencia'
+    verbose_name_plural = 'Incidencias de Asistencia'
+    ordering = ['-fecha_hora']
+
+  def __str__(self):
+    id_user = self.personal if self.personal else 'Desconocido'
+    return (
+        f'Incidencia ({self.get_motivo_incidencia_display()}) - {id_user} -'
+        f' {self.fecha_hora.date()}'
+    )

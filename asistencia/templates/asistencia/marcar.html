@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}Marcado de Asistencia - UGEL Yungay{% endblock %}
 
 {% block extra_css %}
@@ -65,7 +64,7 @@
 
 {% block content %}
 <div class="mantenimiento-container" style="max-width: 550px; margin: 30px auto;">
-    
+
     <div class="header-quiosco">
         <h2><i class="fas fa-fingerprint"></i> Control de Asistencia Digital</h2>
         <a href="{% url 'inicio' %}" class="btn-salir-quiosco">
@@ -73,27 +72,26 @@
         </a>
     </div>
 
-    <div class="camera-container" style="display: none;">
-        <video id="video" autoplay muted></video>
-        <canvas id="canvas"></canvas>
-    </div>
-
-    <!-- Zona interactiva del escaner -->
-    <div id="contenedor-huella" class="box-huella" onclick="procesarMarcadoBiometrico()" style="cursor: pointer;">
+    <!-- Zona interactiva del escáner -->
+    <div id="contenedor-huella" class="box-huella" onclick="activarEscaneoTablet()" style="cursor: pointer;">
         <div class="sensor-container">
             <div class="huella-digital-css">
                 <div class="linea-escaner"></div>
             </div>
         </div>
-
         <p id="estado-lectura" class="st-pendiente text-uppercase" style="font-weight: bold; color: #1F4E78;">
             TOQUE EL ESCÁNER PARA COLOCAR EL DEDO
         </p>
-        
-        <form id="form-asistencia" onsubmit="return false;">
+
+        <form id="form-asistencia" onsubmit="event.preventDefault(); procesarMarcadoBiometrico();">
             <input type="hidden" id="latitud" name="latitud">
             <input type="hidden" id="longitud" name="longitud">
-            <input type="hidden" id="huella" name="huella">
+            <input type="text"
+                   id="huella"
+                   name="huella"
+                   class="form-input-biometric"
+                   placeholder="Esperando código biométrico..."
+                   autocomplete="off">
         </form>
     </div>
 
@@ -108,8 +106,4 @@
 
     <div id="mensaje-sistema" class="alert d-none text-center font-weight-bold" style="margin-top: 25px; font-size: 1.1rem; padding: 15px; border-radius: 10px;"></div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

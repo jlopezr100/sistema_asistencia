@@ -2,120 +2,150 @@
    static/js/main.js - LOGICA CENTRALIZADA DEL QUIOSCO DE ASISTENCIA
    ========================================================================== */
 
+// 1. Obtener o generar la serie persistente de la tablet (DEV-XXXX-XXXX-XXXX-XXXX)
+function obtenerSerieTablet() {
+    const claves = ["serie_dispositivo", "device_serial", "maquina_serie", "dev_id"];
+    for (const k of claves) {
+        const val = localStorage.getItem(k);
+        if (val && val.startsWith("DEV-")) return val;
+    }
+    const hex = () => Math.random().toString(16).substring(2, 6).toUpperCase();
+    const serie = `DEV-${hex()}-${hex()}-${hex()}-${hex()}`;
+    localStorage.setItem("serie_dispositivo", serie);
+    return serie;
+}
+
+// 2. Activar lectura al tocar el recuadro del escáner en la tablet
+function activarEscaneoTablet() {
+    const inputHuella = document.getElementById("huella");
+    const estadoLectura = document.getElementById("estado-lectura");
+    if (inputHuella) {
+        inputHuella.focus();
+        if (estadoLectura) {
+            estadoLectura.innerHTML = "ESCÁNER ACTIVO: APOYE EL DEDO...";
+            estadoLectura.style.color = "#1F4E78";
+        }
+    }
+}
+
+// 3. Procesar envío a Django
 function procesarMarcadoBiometrico() {
     const inputHuella = document.getElementById("huella");
     const mensajeSistema = document.getElementById("mensaje-sistema");
     const boxHuella = document.getElementById("contenedor-huella");
     const estadoLectura = document.getElementById("estado-lectura");
-
     const logHuella = document.getElementById("log-huella");
     const logDispositivo = document.getElementById("log-dispositivo");
 
-    // Evitar que se presione dos veces seguidas mientras se procesa la peticion
     if (!boxHuella || boxHuella.classList.contains("capturada")) return;
 
-    // Animacion visual laser en el quiosco
-    estadoLectura.innerHTML = "⏳ ESCANEANDO CRESTAS PAPILARES...";
+    const codigoHuella = inputHuella ? inputHuella.value.trim() : "";
+    if (!codigoHuella) {
+        activarEscaneoTablet();
+        return;
+    }
+
+    const serieTablet = obtenerSerieTablet();
+    const lat = document.getElementById("latitud").value || "0";
+    const lon = document.getElementById("longitud").value || "0";
+
+    if (logHuella) logHuella.innerText = codigoHuella;
+    if (logDispositivo) logDispositivo.innerText = serieTablet;
+
+    estadoLectura.innerHTML = "VALIDANDO EN SERVIDOR UGEL...";
     if (mensajeSistema) mensajeSistema.classList.add("d-none");
 
-    setTimeout(() => {
-        // =========================================================================
-        // VALORES CONFIGURABLES PARA PRUEBAS (Empareja con tus datos de Workbench)
-        // =========================================================================
-        const huellaRealEmpleado = "BIO_INDICE_dbovjyyne7";
-        const serieDispositivoReal = "MQ-YUNGAY-01";
-        // =========================================================================
+    const formData = new FormData();
+    formData.append("huella", codigoHuella);
+    formData.append("serie_dispositivo", serieTablet);
+    formData.append("latitud", lat);
+    formData.append("longitud", lon);
 
-        if (inputHuella) inputHuella.value = huellaRealEmpleado;
-        if (logHuella) logHuella.innerText = huellaRealEmpleado;
-        if (logDispositivo) logDispositivo.innerText = serieDispositivoReal;
+    // URL exacta definida en asistencia/urls.py
+    fetch("/asistencia/api/registrar/", {
+        method: "POST",
+        body: formData
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok && response.status >= 500) {
+            throw new Error(data.message || `HTTP Error: ${response.status}`);
+        }
+        return data;
+    })
+    .then(data => {
+        if (mensajeSistema) mensajeSistema.classList.remove("d-none");
 
-        const lat = document.getElementById("latitud").value || "-9.535284";
-        const lon = document.getElementById("longitud").value || "-77.530053";
+        if (data.status === "success") {
+            boxHuella.classList.add("capturada");
+            estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
+            estadoLectura.style.color = "#27AE60";
+            mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
+            mensajeSistema.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
 
-        // Enviar la trama real capturada por el escáner al endpoint corregido
-        const formData = new FormData();
-        formData.append("huella", inputHuella.value); // Valor real del input oculto
-        formData.append("latitud", lat);
-        formData.append("longitud", lon);
-        formData.append("serie_dispositivo", serieDispositivoReal);
+            setTimeout(() => restaurarPanelQuiosco(), 4000);
 
-        fetch("/asistencia/registrar-marcado/", { // Ruta absoluta o relativa correcta hacia tu vista Django
-            method: "POST",
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (mensajeSistema) mensajeSistema.classList.remove("d-none");
+        } else if (data.status === "invalid") {
+            boxHuella.classList.remove("capturada");
+            estadoLectura.innerHTML = "✖ ACCESO RECHAZADO";
+            estadoLectura.style.color = "#E74C3C";
+            mensajeSistema.className = "alert alert-warning text-center font-weight-bold shadow-sm";
+            mensajeSistema.innerHTML = `<i class="fas fa-exclamation-triangle"></i> RECHAZADO: ${data.message}`;
 
-                if (data.status === "success") {
-                    boxHuella.classList.add("capturada");
-                    estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
-                    estadoLectura.style.color = "#27AE60";
+            setTimeout(() => restaurarPanelQuiosco(), 5000);
 
-                    mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
-                    mensajeSistema.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+        } else {
+            boxHuella.classList.remove("capturada");
+            estadoLectura.innerHTML = "⚠ AVISO DEL SISTEMA";
+            estadoLectura.style.color = "#F1C40F";
+            mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+            mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> ${data.message}`;
 
-                    setTimeout(() => {
-                        restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
-                    }, 4000);
-
-                } else if (data.status === "invalid") {
-                    boxHuella.classList.remove("capturada");
-                    estadoLectura.innerHTML = "❌ ACCESO RECHAZADO";
-                    estadoLectura.style.color = "#E74C3C";
-
-                    mensajeSistema.className = "alert alert-warning text-center font-weight-bold shadow-sm";
-                    mensajeSistema.innerHTML = `<i class="fas fa-exclamation-triangle"></i> RECHAZADO: ${data.message}`;
-
-                    setTimeout(() => {
-                        restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
-                    }, 5000);
-
-                } else {
-                    boxHuella.classList.remove("capturada");
-                    estadoLectura.innerHTML = "⚠️ DETECCIÓN DE ERROR";
-                    estadoLectura.style.color = "#F1C40F";
-
-                    mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
-                    mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> DETALLES: ${data.message}`;
-
-                    setTimeout(() => {
-                        restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
-                    }, 5000);
-                }
-            })
-            .catch(error => {
-                console.error("Fallo de comunicación API:", error);
-                estadoLectura.innerHTML = "❌ ERROR DE ENLACE DE RED";
-                estadoLectura.style.color = "#E74C3C";
-                if (mensajeSistema) {
-                    mensajeSistema.classList.remove("d-none");
-                    mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
-                    mensajeSistema.innerHTML = "⚠️ Error crítico de conectividad con la central de la UGEL Yungay.";
-                }
-            });
-
-    }, 1500);
+            setTimeout(() => restaurarPanelQuiosco(), 5000);
+        }
+    })
+    .catch(error => {
+        console.error("Fallo de comunicación API:", error);
+        estadoLectura.innerHTML = "✖ ERROR DE ENLACE DE RED";
+        estadoLectura.style.color = "#E74C3C";
+        if (mensajeSistema) {
+            mensajeSistema.classList.remove("d-none");
+            mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+            mensajeSistema.innerHTML = `Error crítico de conectividad con la central de la UGEL Yungay: ${error.message}`;
+        }
+        setTimeout(() => restaurarPanelQuiosco(), 5000);
+    });
 }
 
-function restaurarPanelQuiosco(box, estado, mensaje, inputH, logH) {
-    if (box) box.classList.remove("capturada");
-    if (estado) {
-        estado.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
-        estado.style.color = "#1F4E78";
+function restaurarPanelQuiosco() {
+    const boxHuella = document.getElementById("contenedor-huella");
+    const estadoLectura = document.getElementById("estado-lectura");
+    const mensajeSistema = document.getElementById("mensaje-sistema");
+    const inputHuella = document.getElementById("huella");
+    const logHuella = document.getElementById("log-huella");
+
+    if (boxHuella) boxHuella.classList.remove("capturada");
+    if (estadoLectura) {
+        estadoLectura.innerHTML = "TOQUE EL ESCÁNER PARA COLOCAR EL DEDO";
+        estadoLectura.style.color = "#1F4E78";
     }
-    if (mensaje) mensaje.className = "alert d-none";
-    if (inputH) inputH.value = "";
-    if (logH) logH.innerText = "Esperando lectura...";
+    if (mensajeSistema) mensajeSistema.className = "alert d-none";
+    if (inputHuella) {
+        inputHuella.value = "";
+        inputHuella.focus();
+    }
+    if (logHuella) logHuella.innerText = "Esperando lectura...";
 }
 
+// 4. Inicialización de GPS y serie de dispositivo al abrir el quiosco
 document.addEventListener("DOMContentLoaded", function () {
     const logLatitud = document.getElementById("log-latitud");
     const logLongitud = document.getElementById("log-longitud");
     const logDispositivo = document.getElementById("log-dispositivo");
+    const inputHuella = document.getElementById("huella");
 
-    if (logDispositivo) logDispositivo.innerText = "SISTEMA-WEB-NAVEGADOR";
+    if (logDispositivo) logDispositivo.innerText = obtenerSerieTablet();
+    if (inputHuella) inputHuella.focus();
 
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(function (position) {
@@ -127,19 +157,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (latInput) latInput.value = latFijada;
             if (lonInput) lonInput.value = lonFijada;
-
             if (logLatitud) logLatitud.innerText = latFijada;
             if (logLongitud) logLongitud.innerText = lonFijada;
         }, function (error) {
-            console.warn("Señal GPS baja. Aplicando respaldo.");
-            const latRespaldo = "-9.535284";
-            const lonRespaldo = "-77.530053";
-
-            if (document.getElementById("latitud")) document.getElementById("latitud").value = latRespaldo;
-            if (document.getElementById("longitud")) document.getElementById("longitud").value = lonRespaldo;
-
-            if (logLatitud) logLatitud.innerText = latRespaldo;
-            if (logLongitud) logLongitud.innerText = lonRespaldo;
+            console.warn("Error GPS:", error);
+            if (logLatitud) logLatitud.innerText = "Error GPS - Active ubicación";
+            if (logLongitud) logLongitud.innerText = "Error GPS - Active ubicación";
         }, {
             enableHighAccuracy: true,
             maximumAge: 0,

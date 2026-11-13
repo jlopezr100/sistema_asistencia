@@ -38,7 +38,7 @@ urlpatterns = [
 
     # Mantenimiento de Distritos
     path('distritos/', lazy_view('asistencia.views.distrito_views.distrito_listar'), name='distrito_listar'),
-    path('distritos/crear/', lazy_view('asistencia.views.distrito_crear'), name='distrito_crear'),
+    path('distritos/crear/', lazy_view('asistencia.views.distrito_views.distrito_crear'), name='distrito_crear'),
     path('distritos/editar/<int:pk>/', lazy_view('asistencia.views.distrito_views.distrito_editar'), name='distrito_editar'),
     path('distritos/anular/<int:pk>/', lazy_view('asistencia.views.distrito_views.distrito_anular'), name='distrito_anular'),
     path('distritos/pdf/', lazy_view('asistencia.views.distrito_views.distrito_reporte_pdf'), name='distrito_pdf'),

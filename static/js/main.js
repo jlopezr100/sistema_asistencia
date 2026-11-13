@@ -22,8 +22,8 @@ function procesarMarcadoBiometrico() {
         // =========================================================================
         // VALORES CONFIGURABLES PARA PRUEBAS (Empareja con tus datos de Workbench)
         // =========================================================================
-        const huellaRealEmpleado = "BIO_INDICE_dbovjyyne7"; 
-        const serieDispositivoReal = "MQ-YUNGAY-01"; 
+        const huellaRealEmpleado = "BIO_INDICE_dbovjyyne7";
+        const serieDispositivoReal = "MQ-YUNGAY-01";
         // =========================================================================
 
         if (inputHuella) inputHuella.value = huellaRealEmpleado;
@@ -33,72 +33,68 @@ function procesarMarcadoBiometrico() {
         const lat = document.getElementById("latitud").value || "-9.535284";
         const lon = document.getElementById("longitud").value || "-77.530053";
 
-        // Empaquetar la trama de datos para la API
+        // Enviar la trama real capturada por el escáner al endpoint corregido
         const formData = new FormData();
-        formData.append("huella", huellaRealEmpleado);
+        formData.append("huella", inputHuella.value); // Valor real del input oculto
         formData.append("latitud", lat);
         formData.append("longitud", lon);
         formData.append("serie_dispositivo", serieDispositivoReal);
 
-        // DIRECCION FISICA ABSOLUTA: Repara el error de enlace de red en dispositivos externos
-        fetch("https://onrender.com", {
+        fetch("/asistencia/registrar-marcado/", { // Ruta absoluta o relativa correcta hacia tu vista Django
             method: "POST",
             body: formData
         })
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            if (mensajeSistema) mensajeSistema.classList.remove("d-none");
+            .then(response => response.json())
+            .then(data => {
+                if (mensajeSistema) mensajeSistema.classList.remove("d-none");
 
-            if (data.status === "success") {
-                boxHuella.classList.add("capturada");
-                estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
-                estadoLectura.style.color = "#27AE60";
+                if (data.status === "success") {
+                    boxHuella.classList.add("capturada");
+                    estadoLectura.innerHTML = "✓ IDENTIDAD VERIFICADA";
+                    estadoLectura.style.color = "#27AE60";
 
-                mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
-                mensajeSistema.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+                    mensajeSistema.className = "alert alert-success text-center font-weight-bold shadow-sm";
+                    mensajeSistema.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
 
-                setTimeout(() => {
-                    restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
-                }, 4000);
+                    setTimeout(() => {
+                        restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
+                    }, 4000);
 
-            } else if (data.status === "invalid") {
-                boxHuella.classList.remove("capturada");
-                estadoLectura.innerHTML = "❌ ACCESO RECHAZADO";
+                } else if (data.status === "invalid") {
+                    boxHuella.classList.remove("capturada");
+                    estadoLectura.innerHTML = "❌ ACCESO RECHAZADO";
+                    estadoLectura.style.color = "#E74C3C";
+
+                    mensajeSistema.className = "alert alert-warning text-center font-weight-bold shadow-sm";
+                    mensajeSistema.innerHTML = `<i class="fas fa-exclamation-triangle"></i> RECHAZADO: ${data.message}`;
+
+                    setTimeout(() => {
+                        restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
+                    }, 5000);
+
+                } else {
+                    boxHuella.classList.remove("capturada");
+                    estadoLectura.innerHTML = "⚠️ DETECCIÓN DE ERROR";
+                    estadoLectura.style.color = "#F1C40F";
+
+                    mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+                    mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> DETALLES: ${data.message}`;
+
+                    setTimeout(() => {
+                        restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
+                    }, 5000);
+                }
+            })
+            .catch(error => {
+                console.error("Fallo de comunicación API:", error);
+                estadoLectura.innerHTML = "❌ ERROR DE ENLACE DE RED";
                 estadoLectura.style.color = "#E74C3C";
-
-                mensajeSistema.className = "alert alert-warning text-center font-weight-bold shadow-sm";
-                mensajeSistema.innerHTML = `<i class="fas fa-exclamation-triangle"></i> RECHAZADO: ${data.message}`;
-
-                setTimeout(() => {
-                    restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
-                }, 5000);
-
-            } else {
-                boxHuella.classList.remove("capturada");
-                estadoLectura.innerHTML = "⚠️ DETECCIÓN DE ERROR";
-                estadoLectura.style.color = "#F1C40F";
-
-                mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
-                mensajeSistema.innerHTML = `<i class="fas fa-times-circle"></i> DETALLES: ${data.message}`;
-
-                setTimeout(() => {
-                    restaurarPanelQuiosco(boxHuella, estadoLectura, mensajeSistema, inputHuella, logHuella);
-                }, 5000);
-            }
-        })
-        .catch(error => {
-            console.error("Fallo de comunicación API:", error);
-            estadoLectura.innerHTML = "❌ ERROR DE ENLACE DE RED";
-            estadoLectura.style.color = "#E74C3C";
-            if (mensajeSistema) {
-                mensajeSistema.classList.remove("d-none");
-                mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
-                mensajeSistema.innerHTML = "⚠️ Error crítico de conectividad con la central de la UGEL Yungay.";
-            }
-        });
+                if (mensajeSistema) {
+                    mensajeSistema.classList.remove("d-none");
+                    mensajeSistema.className = "alert alert-danger text-center font-weight-bold shadow-sm";
+                    mensajeSistema.innerHTML = "⚠️ Error crítico de conectividad con la central de la UGEL Yungay.";
+                }
+            });
 
     }, 1500);
 }
@@ -128,23 +124,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const latInput = document.getElementById("latitud");
             const lonInput = document.getElementById("longitud");
-            
+
             if (latInput) latInput.value = latFijada;
             if (lonInput) lonInput.value = lonFijada;
 
             if (logLatitud) logLatitud.innerText = latFijada;
             if (logLongitud) logLongitud.innerText = lonFijada;
-        }, function(error) {
+        }, function (error) {
             console.warn("Señal GPS baja. Aplicando respaldo.");
             const latRespaldo = "-9.535284";
             const lonRespaldo = "-77.530053";
-            
+
             if (document.getElementById("latitud")) document.getElementById("latitud").value = latRespaldo;
             if (document.getElementById("longitud")) document.getElementById("longitud").value = lonRespaldo;
 
             if (logLatitud) logLatitud.innerText = latRespaldo;
             if (logLongitud) logLongitud.innerText = lonRespaldo;
-        }, { 
+        }, {
             enableHighAccuracy: true,
             maximumAge: 0,
             timeout: 10000

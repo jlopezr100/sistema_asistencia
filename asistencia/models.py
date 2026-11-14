@@ -1,6 +1,6 @@
 from django.db import models
 #from .models import Institucion # Asegúrate de que la clase Institucion esté importada
-
+from django.utils import timezone
 
 class Ugel(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre de la Institución/UGEL")
@@ -228,29 +228,61 @@ class Corte(models.Model):
 # =========================================================================
 
 class Asistencia(models.Model):
-    personal = models.ForeignKey(Personal, on_delete=models.PROTECT, related_name='asistencias', verbose_name="Personal")
-    fecha = models.DateField(auto_now_add=True, verbose_name="Fecha de Marcado")
-    
-    h_entrada = models.DateTimeField(null=True, blank=True, verbose_name="Hora de Entrada Real")
-    h_salida = models.DateTimeField(null=True, blank=True, verbose_name="Hora de Salida Real")
-    
-    falta = models.ForeignKey(Falta, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Falta Asociada")
-    tardanza = models.ForeignKey(Tardanza, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tardanza Asociada")
-    
-    justificado = models.BooleanField(default=False, verbose_name="¿Justificado?")
-    descripcion_falta = models.TextField(blank=True, null=True, verbose_name="Observaciones / Justificación")
-    
-    # PROPUESTA APLICADA: null=True y blank=True liberan el marcado diario de procesos manuales
-    corte = models.ForeignKey(Corte, on_delete=models.SET_NULL, null=True, blank=True, related_name='asistencias', verbose_name="Periodo de Corte")
+  personal = models.ForeignKey(
+      Personal,
+      on_delete=models.PROTECT,
+      related_name='asistencias',
+      verbose_name='Personal',
+  )
+  # CORREGIDO: Usa fecha exacta de Lima en lugar de auto_now_add (UTC)
+  fecha = models.DateField(
+      default=timezone.localdate, verbose_name='Fecha de Marcado'
+  )
 
-    class Meta:
-        db_table = 'asistencia'
-        verbose_name = 'Asistencia'
-        verbose_name_plural = 'Asistencias'
-        ordering = ['-fecha', '-h_entrada']
+  h_entrada = models.DateTimeField(
+      null=True, blank=True, verbose_name='Hora de Entrada Real'
+  )
+  h_salida = models.DateTimeField(
+      null=True, blank=True, verbose_name='Hora de Salida Real'
+  )
 
-    def __str__(self):
-        return f"Asistencia de {self.personal.apellidos} - {self.fecha}"
+  falta = models.ForeignKey(
+      Falta,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      verbose_name='Falta Asociada',
+  )
+  tardanza = models.ForeignKey(
+      Tardanza,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      verbose_name='Tardanza Asociada',
+  )
+
+  justificado = models.BooleanField(default=False, verbose_name='¿Justificado?')
+  descripcion_falta = models.TextField(
+      blank=True, null=True, verbose_name='Observaciones / Justificación'
+  )
+  corte = models.ForeignKey(
+      Corte,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      related_name='asistencias',
+      verbose_name='Periodo de Corte',
+  )
+
+  class Meta:
+    db_table = 'asistencia'
+    verbose_name = 'Asistencia'
+    verbose_name_plural = 'Asistencias'
+    ordering = ['-fecha', '-h_entrada']
+
+  def __str__(self):
+    return f'Asistencia de {self.personal.apellidos} - {self.fecha}'
+
 
 
 class Incidencia(models.Model):
@@ -268,7 +300,7 @@ class Incidencia(models.Model):
       verbose_name='Personal Identificado',
   )
   fecha_hora = models.DateTimeField(
-      auto_now_add=True, verbose_name='Fecha y Hora de la Incidencia'
+      default=timezone.now, verbose_name='Fecha y Hora de la Incidencia'
   )
 
   serie_dispositivo = models.CharField(
@@ -280,6 +312,8 @@ class Incidencia(models.Model):
   longitud = models.DecimalField(
       max_digits=11, decimal_places=8, verbose_name='Longitud Capturada'
   )
+
+  # CORREGIDO: null=True, blank=True evita que falle si no se envía imagen a Cloudinary
   ubicacion_imagen = models.ImageField(
       upload_to='media/incidencias/',
       null=True,
@@ -293,7 +327,6 @@ class Incidencia(models.Model):
   detalles = models.TextField(
       blank=True, null=True, verbose_name='Detalle Técnico del Error'
   )
-
   corte = models.ForeignKey(
       Corte,
       on_delete=models.SET_NULL,
@@ -311,7 +344,4 @@ class Incidencia(models.Model):
 
   def __str__(self):
     id_user = self.personal if self.personal else 'Desconocido'
-    return (
-        f'Incidencia ({self.get_motivo_incidencia_display()}) - {id_user} -'
-        f' {self.fecha_hora.date()}'
-    )
+    return f'Incidencia ({self.get_motivo_incidencia_display()}) - {id_user}'

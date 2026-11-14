@@ -72,26 +72,21 @@
         </a>
     </div>
 
-    <!-- Zona interactiva del escáner -->
-    <div id="contenedor-huella" class="box-huella" onclick="activarEscaneoTablet()" style="cursor: pointer;">
+    <!-- Zona interactiva del escáner: UN SOLO TOQUE -->
+    <div id="contenedor-huella" class="box-huella" onclick="procesarMarcadoBiometrico()" style="cursor: pointer;">
         <div class="sensor-container">
             <div class="huella-digital-css">
                 <div class="linea-escaner"></div>
             </div>
         </div>
-        <p id="estado-lectura" class="st-pendiente text-uppercase" style="font-weight: bold; color: #1F4E78;">
+        <p id="estado-lectura" class="st-pendiente text-uppercase" style="font-weight: bold; color: #1F4E78; margin-bottom: 0;">
             TOQUE EL ESCÁNER PARA COLOCAR EL DEDO
         </p>
 
-        <form id="form-asistencia" onsubmit="event.preventDefault(); procesarMarcadoBiometrico();">
+        <form id="form-asistencia" onsubmit="return false;">
             <input type="hidden" id="latitud" name="latitud">
             <input type="hidden" id="longitud" name="longitud">
-            <input type="text"
-                   id="huella"
-                   name="huella"
-                   class="form-input-biometric"
-                   placeholder="Esperando código biométrico..."
-                   autocomplete="off">
+            <input type="hidden" id="huella" name="huella">
         </form>
     </div>
 
@@ -104,6 +99,7 @@
         <div class="debug-line"><span class="debug-label">[LONGITUD]:</span> <span id="log-longitud">Buscando señal GPS...</span></div>
     </div>
 
+    <!-- AQUÍ SE MUESTRA EL MENSAJE DE ENTRADA, SALIDA O RECHAZO -->
     <div id="mensaje-sistema" class="alert d-none text-center font-weight-bold" style="margin-top: 25px; font-size: 1.1rem; padding: 15px; border-radius: 10px;"></div>
 </div>
 {% endblock %}

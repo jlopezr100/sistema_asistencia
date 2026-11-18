@@ -61,12 +61,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sistema_asistencia.wsgi.application'
 
 # 5. Configuración Dinámica de la Base de Datos (Aiven MySQL)
+#DATABASES = {
+#    'default': dj_database_url.config(
+#        default=os.getenv('DATABASE_URL'),
+#        conn_max_age=600,
+#        conn_health_checks=True,
+#    )
+#}
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
         conn_max_age=600,
         conn_health_checks=True,
     )
+}
+DATABASES['default']['OPTIONS'] = {
+    'init_command': "SET time_zone = '-05:00'",
 }
 
 # 6. Almacenamiento Remoto de Imágenes en Cloudinary (Fotos de Incidencias)
@@ -75,7 +85,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudErrorImageStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # 7. Sincronización Estricta de Localización y Zona Horaria (América/Lima)
 LANGUAGE_CODE = 'es-pe'
